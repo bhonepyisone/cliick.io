@@ -181,9 +181,17 @@ router.post('/', auth_1.authenticateToken, async (req, res, next) => {
                 error: 'Unable to verify user profile'
             });
         }
+        const trialEndDate = new Date();
+        trialEndDate.setDate(trialEndDate.getDate() + 14); // 14-day trial
+        const subscriptionData = {
+            plan: 'Trial',
+            status: 'trialing',
+            trialEndsAt: trialEndDate.toISOString(),
+            periodEndsAt: null
+        };
         const { data, error } = await supabase_1.supabase
             .from('shops')
-            .insert([{ name, description, currency, assistant_model, owner_id: userId }])
+            .insert([{ name, description, currency, assistant_model, owner_id: userId, subscription_data: JSON.stringify(subscriptionData) }])
             .select()
             .single();
         if (error)

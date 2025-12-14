@@ -184,9 +184,26 @@ router.post('/', authenticateToken, async (req: Request, res: Response, next: Ne
       });
     }
 
+    const trialEndDate = new Date();
+    trialEndDate.setDate(trialEndDate.getDate() + 14); // 14-day trial
+    
+    const subscriptionData = {
+      plan: 'Trial',
+      status: 'trialing',
+      trialEndsAt: trialEndDate.toISOString(),
+      periodEndsAt: null
+    };
+
     const { data, error } = await supabase
       .from('shops')
-      .insert([{ name, description, currency, assistant_model, owner_id: userId }])
+      .insert([{ 
+        name, 
+        description, 
+        currency, 
+        assistant_model, 
+        owner_id: userId,
+        subscription_data: JSON.stringify(subscriptionData)
+      }])
       .select()
       .single();
 
