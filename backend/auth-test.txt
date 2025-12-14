@@ -1,0 +1,134 @@
+
+> cliick-backend@1.0.0 test
+> vitest --run auth.test.ts
+
+The CJS build of Vite's Node API is deprecated. See https://vite.dev/guide/troubleshooting.html#vite-cjs-node-api-deprecated for more details.
+
+[7m[1m[36m RUN [39m[22m[27m [36mv1.6.1[39m [90mC:/cliick.io-(backend-ready)-(nov-18_-2_30pm)/backend[39m
+
+stderr | tests/auth.test.ts > Authentication Endpoints > POST /api/auth/register > should register a new user
+Registration error: {
+  message: 'TypeError: fetch failed',
+  details: 'TypeError: fetch failed\n' +
+    '\n' +
+    'Caused by: Error: getaddrinfo ENOTFOUND test-project.supabase.co (ENOTFOUND)\n' +
+    'Error: getaddrinfo ENOTFOUND test-project.supabase.co\n' +
+    '    at GetAddrInfoReqWrap.onlookupall [as oncomplete] (node:dns:122:26)',
+  hint: '',
+  code: ''
+}
+
+ [33mΓ¥»[39m tests/auth.test.ts [2m ([22m[2m14 tests[22m [2m|[22m [31m5 failed[39m[2m)[22m[33m 317[2mms[22m[39m
+[31m   [33mΓ¥»[31m tests/auth.test.ts[2m > [22mAuthentication Endpoints[2m > [22mPOST /api/auth/register[2m > [22mshould register a new user[39m
+[31m     ΓåÆ expected 500 to be 201 // Object.is equality[39m
+[31m   [33mΓ¥»[31m tests/auth.test.ts[2m > [22mAuthentication Endpoints[2m > [22mPOST /api/auth/login[2m > [22mshould login with valid credentials[39m
+[31m     ΓåÆ expected 401 to be 200 // Object.is equality[39m
+[31m   [33mΓ¥»[31m tests/auth.test.ts[2m > [22mAuthentication Endpoints[2m > [22mGET /api/auth/me[2m > [22mshould get current user with valid token[39m
+[31m     ΓåÆ expected 403 to be 200 // Object.is equality[39m
+[31m   [33mΓ¥»[31m tests/auth.test.ts[2m > [22mAuthentication Endpoints[2m > [22mPOST /api/auth/refresh[2m > [22mshould refresh token with valid refresh token[39m
+[31m     ΓåÆ expected 400 to be 200 // Object.is equality[39m
+[31m   [33mΓ¥»[31m tests/auth.test.ts[2m > [22mAuthentication Endpoints[2m > [22mPOST /api/auth/logout[2m > [22mshould logout successfully[39m
+[31m     ΓåÆ expected 403 to be 200 // Object.is equality[39m
+
+ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ» Failed Tests 5 ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»
+
+ FAIL  tests/auth.test.ts > Authentication Endpoints > POST /api/auth/register > should register a new user
+AssertionError: expected 500 to be 201 // Object.is equality
+
+- Expected
++ Received
+
+- 201
++ 500
+
+ Γ¥» tests/auth.test.ts:28:31
+     26|         });
+     27| 
+     28|       expect(response.status).toBe(201);
+       |                               ^
+     29|       expect(response.body.success).toBe(true);
+     30|       expect(response.body.data.user).toBeDefined();
+
+ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»[1/5]ΓÄ»
+
+ FAIL  tests/auth.test.ts > Authentication Endpoints > POST /api/auth/login > should login with valid credentials
+AssertionError: expected 401 to be 200 // Object.is equality
+
+- Expected
++ Received
+
+- 200
++ 401
+
+ Γ¥» tests/auth.test.ts:73:31
+     71|         });
+     72| 
+     73|       expect(response.status).toBe(200);
+       |                               ^
+     74|       expect(response.body.success).toBe(true);
+     75|       expect(response.body.data.user).toBeDefined();
+[2m Test Files [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[31m5 failed[39m[22m[2m | [22m[1m[32m9 passed[39m[22m[90m (14)[39m
+[2m   Start at [22m 15:57:01
+[2m   Duration [22m 1.53s[2m (transform 70ms, setup 44ms, collect 604ms, tests 317ms, environment 0ms, prepare 205ms)[22m
+
+
+ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»[2/5]ΓÄ»
+
+ FAIL  tests/auth.test.ts > Authentication Endpoints > GET /api/auth/me > should get current user with valid token
+AssertionError: expected 403 to be 200 // Object.is equality
+
+- Expected
++ Received
+
+- 200
++ 403
+
+ Γ¥» tests/auth.test.ts:110:31
+    108|         .set('Authorization', `Bearer ${authToken}`);
+    109| 
+    110|       expect(response.status).toBe(200);
+       |                               ^
+    111|       expect(response.body.success).toBe(true);
+    112|       expect(response.body.data.email).toBe('test@example.com');
+
+ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»[3/5]ΓÄ»
+
+ FAIL  tests/auth.test.ts > Authentication Endpoints > POST /api/auth/refresh > should refresh token with valid refresh token
+AssertionError: expected 400 to be 200 // Object.is equality
+
+- Expected
++ Received
+
+- 200
++ 400
+
+ Γ¥» tests/auth.test.ts:139:31
+    137|         .send({ refreshToken });
+    138| 
+    139|       expect(response.status).toBe(200);
+       |                               ^
+    140|       expect(response.body.success).toBe(true);
+    141|       expect(response.body.data.token).toBeDefined();
+
+ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»[4/5]ΓÄ»
+
+ FAIL  tests/auth.test.ts > Authentication Endpoints > POST /api/auth/logout > should logout successfully
+AssertionError: expected 403 to be 200 // Object.is equality
+
+- Expected
++ Received
+
+- 200
++ 403
+
+ Γ¥» tests/auth.test.ts:169:31
+    167|         .set('Authorization', `Bearer ${authToken}`);
+    168| 
+    169|       expect(response.status).toBe(200);
+       |                               ^
+    170|       expect(response.body.success).toBe(true);
+    171|     });
+
+ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»[5/5]ΓÄ»
+

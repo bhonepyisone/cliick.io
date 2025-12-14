@@ -1,0 +1,249 @@
+╔════════════════════════════════════════════════════════════════════════════╗
+║              TOKEN ANALYTICS PANEL - QUICK START GUIDE                     ║
+╚════════════════════════════════════════════════════════════════════════════╝
+
+🚀 ACCESSING THE DASHBOARD
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1. Open Admin Dashboard
+2. Click "Token Analytics" in left navigation menu
+3. Dashboard loads instantly with live data
+
+
+📊 WHAT YOU SEE (5 Sections)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Section 1: SUMMARY CARDS (Top)
+   ├─ Total Messages     → Gemini API calls processed
+   ├─ Total Tokens      → Consumption in millions  
+   ├─ API Cost          → What you paid Google
+   └─ Revenue (5x)      → What you earn + profit
+
+Section 2: FILTERS (Below Cards)
+   ├─ Shop Filter       → Select specific shop or "All"
+   ├─ Period Filter     → Today / Week / Month / All-time
+   └─ Operation Filter  → Chat / Descriptions / Photo / Suggestions
+
+Section 3: COST ANALYSIS (Middle Section)
+   ├─ Cost Projections     → Cost for 1K, 10K, 100K messages
+   └─ Profit Margin Analysis → Shows 2x, 3x, 5x markup scenarios
+
+Section 4: SMART ALERTS (Dynamic)
+   ├─ High-Cost Operations → Highlights expensive features (RED)
+   └─ Tier Recommendations → Suggests pricing tier per shop (BLUE)
+
+Section 5: DATA TABLES (Lower)
+   ├─ By Operation Type → Shows cost breakdown by feature
+   ├─ By Shop          → Shows usage per customer (when "All" selected)
+   └─ Recent Activity  → Real-time feed of last 50 API calls
+
+Section 6: CONTROLS (Top-Right)
+   ├─ Auto-refresh ☑   → Updates every 5 seconds
+   ├─ Refresh ↻        → Manual update
+   ├─ Export CSV ⬇     → Download for analysis
+   └─ Clear All Logs   → (Bottom-right, red button)
+
+
+⚡ QUICK ACTIONS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+✅ Check Today's Spending
+   1. Set Period → "Last 24 Hours"
+   2. Check "API Cost" card
+   3. See "Recent Activity" table
+
+✅ Find Most Expensive Operations
+   1. Look for RED alert box
+   2. Click on operation name
+   3. Review "Usage by Operation Type" table
+
+✅ Analyze Individual Shop
+   1. Select shop from "Shop Filter"
+   2. Check BLUE "Tier Recommendation" box
+   3. See usage and profit potential
+
+✅ Calculate Revenue
+   1. Note "API Cost" from card
+   2. Use formula: Cost × 5 = Revenue
+   3. Profit = Revenue - Cost (80% margin)
+
+✅ Export Data
+   1. Click "Export CSV" button
+   2. Opens download dialog
+   3. Import to Excel for custom analysis
+
+
+💰 KEY NUMBERS TO KNOW
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Your Cost (API):              $0.000074 per message
+Recommended Price (5x):       $0.000370 per message
+Your Profit Margin:           80%
+
+Example: 10,000 messages
+├─ API Cost:     $0.74
+├─ Your Revenue: $3.70
+└─ Your Profit:  $2.96 (80%)
+
+Input Ratio:  91% (drives costs)
+Output Ratio: 9%  (cheaper)
+
+
+🎯 PRICING TIERS (Recommended)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+STARTER:
+├─ Price:        $5/month
+├─ Includes:     1,000 messages
+├─ Overage:      $0.00015 each
+└─ Best for:     Small shops
+
+PROFESSIONAL:
+├─ Price:        $15/month
+├─ Includes:     10,000 messages
+├─ Overage:      $0.00010 each
+└─ Best for:     Growing shops
+
+ENTERPRISE:
+├─ Price:        Custom
+├─ Includes:     Unlimited
+├─ Overage:      Negotiated
+└─ Best for:     High-volume shops
+
+
+⚠️ WATCH FOR (Red Flags)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🔴 Cost Spikes
+   → Check "Recent Activity" for unusual patterns
+   → Review "High-Cost Operations" alert
+   → Implement optimization if > $0.0001 per message
+
+🔴 Margin Below 70%
+   → Increase markup (3x instead of 2x)
+   → Implement cost optimizations
+   → Review operation-specific costs
+
+🔴 Long Conversations
+   → History accumulates tokens (25% of cost)
+   → Implement message trimming (keep last 5)
+   → Set conversation limits
+
+
+✨ OPTIMIZATION TIPS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1. REDUCE INPUT TOKENS (91% of cost)
+   ├─ Trim conversation history to last 5 messages    → 20-30% savings
+   ├─ Use semantic search for KB instead of full KB   → 70-90% savings
+   ├─ Cache common responses                          → 30-50% savings
+   └─ Compress system prompts                         → 20% savings
+
+2. MONITOR OPERATIONS
+   ├─ Track "Knowledge Base Heavy Query"   (usually 166% above avg)
+   ├─ Monitor "Long Conversation"          (usually 197% above avg)
+   └─ Review "Photo Studio"                (may be 100%+ above avg)
+
+3. SEGMENT CUSTOMERS
+   ├─ Move low-usage shops to Starter tier
+   ├─ Recommend Professional to growing shops
+   ├─ Offer Enterprise for high-volume users
+   └─ Use tier recommendations (BLUE boxes)
+
+
+📈 DECISION FRAMEWORK
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Decision                    Action
+─────────────────────────────────────────────────────────────────────
+"Cost too high?"            Check red alert → Implement optimization
+"Not enough margin?"        Increase markup (3x-5x) or optimize
+"Shop not using much?"      Move to Starter plan
+"Shop very active?"         Move to Professional plan
+"Need to cut costs?"        Implement caching + history trimming
+"Want more profit?"         Raise prices (still competitive)
+"Which operations cost?"    See "Usage by Operation Type" table
+
+
+🔗 RELATED DOCUMENTS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📄 TOKEN_CONSUMPTION_QUICK_FACTS.txt    → Summary with all costs
+📄 BOT_TOKEN_CONSUMPTION_REPORT.md      → Detailed analysis report
+📄 PRICING_IMPLEMENTATION_GUIDE.md      → How to implement pricing
+📄 TOKEN_TRACKING_IMPLEMENTATION.md     → Technical details
+📄 TOKEN_ANALYTICS_USER_GUIDE.md        → Full user manual
+
+
+❓ COMMON QUESTIONS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Q: Why is my cost $0.000074?
+A: Average across all scenarios. Varies: $0.00002 (simple) to $0.00015 (complex)
+
+Q: Should I use subscription or pay-per-message?
+A: Subscription recommended (Starter/Professional/Enterprise tiers)
+
+Q: What's a good profit margin?
+A: 75-80% is excellent. Anything above 70% is healthy.
+
+Q: How often should I check this?
+A: Daily for monitoring, weekly for analysis, monthly for decisions
+
+Q: Can I change prices mid-month?
+A: Yes, but communicate to customers. Recommend grandfathering existing users.
+
+Q: What if a shop is losing money?
+A: Upgrade to higher tier or implement optimizations. Consider minimum fees.
+
+Q: How much can I save with optimizations?
+A: 45-75% reduction possible with all optimizations together.
+
+
+🎯 YOUR PROFIT AT 5x MARKUP
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Messages/Month    API Cost      Your Revenue    Your Profit
+──────────────────────────────────────────────────────────
+1,000            $0.074        $0.37           $0.30
+10,000           $0.74         $3.70           $2.96
+100,000          $7.39         $37.00          $29.61
+1,000,000        $73.90        $370.00         $296.10
+
+At 10,000 shops × 10 messages/month average:
+  Monthly Revenue: $37,000
+  Monthly Profit:  $29,600
+  Annual Profit:   $355,200
+
+
+✅ CHECKLIST BEFORE LAUNCH
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+□ Verify token costs match Gemini pricing
+□ Test all filters work correctly
+□ Export CSV and verify data
+□ Check alerts display properly
+□ Review "Recent Activity" table
+□ Confirm profit calculations are correct
+□ Test on mobile/tablet view
+□ Monitor for 1 week before major decisions
+□ Document pricing tiers in terms of service
+□ Train support team on metrics
+
+
+═══════════════════════════════════════════════════════════════════════════════
+
+BOTTOM LINE:
+
+✓ You have a complete, real-time view of API costs
+✓ You can calculate optimal pricing with 80% margins
+✓ You can identify and fix expensive operations
+✓ You can segment customers by usage
+✓ You have everything needed to manage profitability
+
+🎉 Ready to launch Token Analytics!
+
+═══════════════════════════════════════════════════════════════════════════════
+
+Generated: December 12, 2025
+Status: Production Ready

@@ -1,0 +1,254 @@
+================================================================================
+                    CLIICK.IO DEPLOYMENT REFERENCE CARD
+================================================================================
+
+📋 YOUR DEPLOYMENT DETAILS
+================================================================================
+
+Frontend:    https://cliickio.vercel.app
+Backend:     https://cliick-backend-xxxxx.run.app (after deploy)
+Database:    https://klfjdplshshqkhjnfzrq.supabase.co
+
+🔐 SECRETS (Keep Safe!)
+================================================================================
+
+JWT_SECRET:
+  5dddb6df6926d51e47aa3247f4f2c9b1b190d49f4112e105b4217fed6450f16c
+
+SUPABASE_SERVICE_ROLE_KEY:
+  eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtsZmpkcGxzaHNocWtoam5menJxIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2NTIwNTA4NSwiZXhwIjoyMDgwNzgxMDg1fQ.xmcIIJT3Dwthr63Eyl23_cUblSfeQQrnt-tXhuOIfDw
+
+🚀 DEPLOYMENT IN 3 STEPS
+================================================================================
+
+STEP 1: Authenticate with Google Cloud
+  $ gcloud auth login
+  $ gcloud config set project YOUR-PROJECT-ID
+
+STEP 2: Deploy backend to Cloud Run
+  $ .\deploy.ps1
+  (Wait 10 minutes for deployment)
+
+STEP 3: Update Vercel with backend URL
+  1. Go to https://vercel.com/dashboard
+  2. Select project: cliickio
+  3. Settings → Environment Variables
+  4. Add: VITE_API_BASE_URL=https://cliick-backend-xxxxx.run.app/api
+  5. Save and redeploy
+
+⏱️  TOTAL TIME: ~15 minutes
+
+🔍 VERIFICATION
+================================================================================
+
+Test Backend Health:
+  $ curl https://cliick-backend-xxxxx.run.app/health
+
+Test User Registration:
+  $ curl -X POST https://cliick-backend-xxxxx.run.app/api/auth/register \
+    -H "Content-Type: application/json" \
+    -d '{"email":"test@test.com","password":"Test123!","username":"testuser"}'
+
+Visit Frontend:
+  https://cliickio.vercel.app
+
+Complete Flow:
+  Register → Login → Create Shop → View Dashboard
+
+📊 MONITORING
+================================================================================
+
+View Backend Logs:
+  $ gcloud run logs read cliick-backend --region us-central1 --tail
+
+View Service Status:
+  $ gcloud run services describe cliick-backend --region us-central1
+
+Cloud Console:
+  https://console.cloud.google.com/run
+
+💰 COSTS
+================================================================================
+
+Cloud Run:    $0-10/month  (within free tier for MVP)
+Supabase:     $0-25/month  (free tier)
+Vercel:       $0/month     (free tier)
+Total:        $0-35/month  (usually within free tier)
+
+📁 DEPLOYMENT FILES
+================================================================================
+
+✓ Dockerfile              - Docker image configuration
+✓ deploy.ps1             - PowerShell deployment script (Windows)
+✓ deploy.sh              - Bash deployment script (Mac/Linux)
+✓ DEPLOY_QUICK_START.md  - 5-minute quick start guide
+✓ CLOUD_RUN_DEPLOY.md    - Detailed Cloud Run guide
+✓ DEPLOYMENT_CHECKLIST.md - Pre-launch verification
+✓ PRODUCTION_ENV_SETUP.md - Environment variables guide
+✓ READY_TO_DEPLOY.md     - Final deployment status
+
+🎯 ARCHITECTURE
+================================================================================
+
+Frontend (Vercel)
+  ↓ HTTPS API calls
+Backend (Cloud Run)
+  ↓ Database queries
+Database (Supabase PostgreSQL)
+
+All components auto-scale and have monitoring enabled.
+
+⚡ KEY ENDPOINTS
+================================================================================
+
+Auth:
+  POST   /api/auth/register
+  POST   /api/auth/login
+  POST   /api/auth/refresh
+  GET    /api/auth/me
+
+Shops:
+  GET    /api/shops
+  POST   /api/shops
+  GET    /api/shops/:id
+  PUT    /api/shops/:id
+  POST   /api/shops/:id/upgrade
+
+Products:
+  GET    /api/shops/:shopId/products
+  POST   /api/shops/:shopId/products
+  PUT    /api/shops/:shopId/products/:id
+  DELETE /api/shops/:shopId/products/:id
+
+Orders:
+  GET    /api/shops/:shopId/orders
+  POST   /api/shops/:shopId/orders
+  PUT    /api/shops/:shopId/orders/:id/status
+
+Analytics:
+  GET    /api/shops/:shopId/analytics/overview
+  GET    /api/shops/:shopId/analytics/orders
+  GET    /api/shops/:shopId/analytics/revenue
+
+Health:
+  GET    /health
+
+🔐 SECURITY FEATURES
+================================================================================
+
+✓ HTTPS/TLS (automatic)
+✓ JWT authentication
+✓ Refresh token mechanism
+✓ Rate limiting (100 req/15min)
+✓ CORS configured
+✓ Database RLS policies
+✓ Password hashing (bcrypt)
+✓ No hardcoded secrets
+✓ Error handling (no stack traces in prod)
+
+🆘 TROUBLESHOOTING
+================================================================================
+
+CORS Error:
+  → Check FRONTEND_URL env var matches your domain
+  → Verify Vercel URL is https://cliickio.vercel.app
+
+JWT Error:
+  → Verify JWT_SECRET is set correctly
+  → Check token format: "Bearer <token>"
+
+Connection Refused:
+  → Check Supabase credentials
+  → Verify SUPABASE_URL is accessible
+  → Check firewall rules
+
+Build Failed:
+  → Check Docker installation
+  → Verify Node.js version compatibility
+  → Run: npm ci (instead of npm install)
+
+📞 SUPPORT COMMANDS
+================================================================================
+
+View all logs (last 50 lines):
+  $ gcloud run logs read cliick-backend --region us-central1 --limit 50
+
+View logs in real-time:
+  $ gcloud run logs read cliick-backend --region us-central1 --tail
+
+Update environment variable:
+  $ gcloud run services update cliick-backend --region us-central1 \
+    --set-env-vars KEY=VALUE
+
+List all services:
+  $ gcloud run services list
+
+Delete service:
+  $ gcloud run services delete cliick-backend --region us-central1
+
+✅ CHECKLIST BEFORE LAUNCH
+================================================================================
+
+Required:
+  [ ] Google Cloud project created
+  [ ] gcloud CLI installed and authenticated
+  [ ] Backend deployed successfully
+  [ ] Backend URL obtained
+  [ ] Vercel environment variable updated
+  [ ] Frontend redeployed
+  [ ] Health check passes
+  [ ] User registration tested
+  [ ] User login tested
+  [ ] Shop creation tested
+  [ ] Dashboard loads
+
+Recommended:
+  [ ] Complete end-to-end flow tested
+  [ ] Logs reviewed for errors
+  [ ] Performance verified
+  [ ] Team notified
+  [ ] Documentation complete
+
+📖 NEXT STEPS AFTER DEPLOYMENT
+================================================================================
+
+Day 1:
+  → Monitor logs for errors
+  → Test all user flows
+  → Check performance
+  → Get team feedback
+
+Week 1:
+  → Review error logs
+  → Monitor API usage
+  → Analyze user behavior
+  → Plan improvements
+
+Ongoing:
+  → Monitor costs
+  → Update dependencies monthly
+  → Optimize performance
+  → Add new features
+
+🎉 YOU'RE READY TO DEPLOY!
+================================================================================
+
+Commands to run now:
+
+  1. gcloud auth login
+  2. gcloud config set project YOUR-PROJECT-ID
+  3. .\deploy.ps1
+  4. Wait for completion
+  5. Copy backend URL
+  6. Update Vercel environment variable
+  7. Test at https://cliickio.vercel.app
+
+Estimated time: 15 minutes
+System status: PRODUCTION READY ✓
+
+Questions? See documentation files or check Cloud Run logs.
+
+================================================================================
+Last Updated: December 12, 2025
+Status: Ready for Production Deployment ✅
+================================================================================

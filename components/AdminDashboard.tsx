@@ -1,0 +1,1479 @@
+import React, { useState, useEffect, useMemo, useCallback, ReactNode } from 'react';
+import api from '../services/apiService';
+import { Shop, User, SubscriptionPlan, PlatformSettings, PaymentMethod, AIToneConfig, AssistantTone, OrderedItem, AIPhotoStudioPreset, AIProvider, AIModelFunction, PlanEntitlements, PlanFeatures, FeatureEntitlement, FormSubmission, Language, OrderStatus } from '../types';
+import UsersIcon from './icons/UsersIcon';
+import InfoIcon from './icons/InfoIcon';
+import DashboardIcon from './icons/DashboardIcon';
+import CheckCircleIcon from './icons-material/CheckCircleIcon';
+import StoreIcon from './icons/StoreIcon';
+import SettingsIcon from './icons/SettingsIcon';
+import TagIcon from './icons/TagIcon';
+import DollarSignIcon from './icons/DollarSignIcon';
+import ShoppingCartIcon from './icons/ShoppingCartIcon';
+import DatabaseIcon from './icons/DatabaseIcon';
+import XIcon from './icons/XIcon';
+import TrashIcon from './icons/TrashIcon';
+import PlusIcon from './icons/PlusIcon';
+import ConfirmationModal from './ConfirmationModal';
+import SparklesIcon from './icons/SparklesIcon';
+import SearchIcon from './icons/SearchIcon';
+import ReactMarkdown from 'react-markdown';
+import { useLocalization } from '../hooks/useLocalization';
+import ApiIcon from './icons/ApiIcon';
+import PlanManagementPanel from './PlanManagementPanel';
+import ToggleSwitch from './ToggleSwitch';
+import { getRetentionDays } from '../services/utils';
+import { useToast } from '../contexts/ToastContext';
+import AdminNavigation, { AdminTab } from './AdminNavigation';
+import LocalizationPanel from './LocalizationPanel';
+import TokenAnalyticsPanel from './TokenAnalyticsPanel';
+
+
+const getRetentionPolicy = (plan: SubscriptionPlan): string => {
+    switch (plan) {
+        case 'Starter': return "90 Days";
+        case 'Brand': return "6 Months";
+        case 'Pro':
+        case 'Trial': return "15 Months";
+        default: return "Unknown";
+    }
+};
+
+const toISODateString = (date: Date | null): string => {
+    if (!date) return '';
+    // Adjust for timezone offset to get the correct local date
+    const tzoffset = date.getTimezoneOffset() * 60000; //offset in milliseconds
+    const localISOTime = (new Date(date.getTime() - tzoffset)).toISOString().slice(0, 10);
+    return localISOTime;
+};
+
+const KpiCard: React.FC<{ title: string; value: string | number; subtext?: string }> = ({ title, value, subtext }) => (
+    <div className="bg-gray-800 p-6 rounded-lg">
+        <h3 className="text-sm text-gray-400 font-medium">{title}</h3>
+        <p className="text-3xl font-bold text-white mt-2 truncate" title={String(value)}>{value}</p>
+        {subtext && <p className="text-sm text-gray-500 mt-1">{subtext}</p>}
+    </div>
+);
+
+const PresetEditorModal: React.FC<{
+    preset: AIPhotoStudioPreset | null;
+    onSave: (preset: AIPhotoStudioPreset) => void;
+    onClose: () => void;
+    showToast: (message: string, type?: 'success' | 'error' | 'info') => void;
+}> = ({ preset, onSave, onClose, showToast }) => {
+    const [name, setName] = useState(preset?.name || '');
+    const [prompt, setPrompt] = useState(preset?.prompt || '');
+
+    const handleSave = () => {
+        if (!name.trim() || !prompt.trim()) {
+            showToast("Preset name and prompt cannot be empty.", "error");
+            return;
+        }
+        onSave({
+            id: preset?.id || `preset_${Date.now()}`,
+            name,
+            prompt,
+        });
+    };
+
+    return (
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 animate-fade-in-fast">
+            <div className="bg-gray-800 rounded-lg shadow-xl w-full max-w-lg border border-gray-700 flex flex-col">
+                <header className="p-4 border-b border-gray-700 flex justify-between items-center">
+                    <h3 className="text-lg font-bold text-white">{preset?.id ? 'Edit Preset' : 'Add New Preset'}</h3>
+                    <button onClick={onClose} className="p-1 rounded-full text-gray-400 hover:bg-gray-700 hover:text-white"><XIcon className="w-5 h-5" /></button>
+                </header>
+                <div className="p-6 space-y-4">
+                    <div>
+                        <label className="text-sm font-medium text-gray-300 block mb-1">Preset Name</label>
+                        <input type="text" value={name} onChange={e => setName(e.target.value)} className="w-full bg-gray-700 border border-gray-600 rounded p-2 text-sm text-white" />
+                    </div>
+                    <div>
+                        <label className="text-sm font-medium text-gray-300 block mb-1">AI Prompt</label>
+                        <textarea value={prompt} onChange={e => setPrompt(e.target.value)} className="w-full bg-gray-700 border border-gray-600 rounded p-2 text-sm text-white" rows={4}></textarea>
+                    </div>
+                </div>
+                <footer className="p-4 bg-gray-900/50 flex justify-end gap-3">
+                    <button onClick={onClose} className="px-4 py-2 text-sm bg-gray-600 hover:bg-gray-500 rounded-md">Cancel</button>
+                    <button onClick={handleSave} className="px-4 py-2 text-sm bg-blue-600 hover:bg-blue-700 rounded-md font-semibold">Save Preset</button>
+                </footer>
+            </div>
+        </div>
+    );
+};
+
+
+const APIModelConfigPanel: React.FC<{
+    settings: PlatformSettings;
+    onSettingsChange: (settings: PlatformSettings) => void;
+}> = ({ settings, onSettingsChange }) => {
+    const { aiConfig } = settings;
+    const { modelAssignments, globalModelConfig } = aiConfig;
+
+    const handleAssignmentChange = (func: AIModelFunction, field: 'provider' | 'modelName', value: string) => {
+        onSettingsChange({
+            ...settings,
+            aiConfig: {
+                ...aiConfig,
+                modelAssignments: {
+                    ...modelAssignments,
+                    [func]: {
+                        ...modelAssignments[func],
+                        [field]: value,
+                    },
+                },
+            },
+        });
+    };
+
+    const handleGlobalConfigChange = (field: keyof typeof globalModelConfig, value: number) => {
+        onSettingsChange({
+            ...settings,
+            aiConfig: {
+                ...aiConfig,
+                globalModelConfig: {
+                    ...globalModelConfig,
+                    [field]: value,
+                },
+            },
+        });
+    };
+
+    const functionLabels: Record<AIModelFunction, { name: string, description: string }> = {
+        generalChatFast: { name: 'General Chat (Fast)', description: 'For quick, simple chat interactions.' },
+        generalChatStandard: { name: 'General Chat (Standard)', description: 'For balanced, everyday conversations.' },
+        generalChatThinking: { name: 'General Chat (Thinking)', description: 'For complex reasoning in conversations.' },
+        descriptionGenerator: { name: 'Product Description Generator', description: 'Used in the Product Catalog for creating descriptions.' },
+        photoStudio: { name: 'AI Photo Studio', description: 'For editing product images.' },
+        shopDashboardSuggestion: { name: 'Shop Dashboard AI Suggestion', description: 'Powers the "Generate Suggestion" button in the shop sales dashboard.' },
+        adminDashboardSuggestion: { name: 'Admin Dashboard AI Suggestion', description: 'Powers the "Generate Suggestion" button in the admin overview.' },
+    };
+
+    return (
+        <div className="space-y-8">
+            <div className="bg-gray-900/50 p-6 rounded-lg border border-gray-700">
+                <h3 className="text-lg font-semibold text-gray-200 mb-4">AI Model Assignments</h3>
+                <p className="text-sm text-gray-400 mb-6">Assign a specific AI provider and model for each function on the platform. This allows you to control costs and performance for different tasks.</p>
+                <div className="space-y-4">
+                    {Object.keys(modelAssignments).map((func) => {
+                        const key = func as AIModelFunction;
+                        const config = modelAssignments[key];
+                        const { name, description } = functionLabels[key];
+                        return (
+                            <div key={key} className="p-4 bg-gray-800 rounded-lg border border-gray-700 grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
+                                <div className="md:col-span-1">
+                                    <p className="font-semibold text-white">{name}</p>
+                                    <p className="text-xs text-gray-400">{description}</p>
+                                </div>
+                                <div className="md:col-span-2 grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label className="block text-xs font-medium text-gray-400 mb-1">Provider</label>
+                                        <select
+                                            value={config.provider}
+                                            onChange={(e) => handleAssignmentChange(key, 'provider', e.target.value)}
+                                            className="w-full bg-gray-700 border border-gray-600 rounded p-2 text-sm"
+                                        >
+                                            <option>Google Gemini</option>
+                                            {/* <option disabled>OpenAI (coming soon)</option> */}
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label className="block text-xs font-medium text-gray-400 mb-1">Model Name</label>
+                                        <input
+                                            type="text"
+                                            value={config.modelName}
+                                            onChange={(e) => handleAssignmentChange(key, 'modelName', e.target.value)}
+                                            className="w-full bg-gray-700 border border-gray-600 rounded p-2 text-sm"
+                                            placeholder="e.g., gemini-2.5-flash"
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+                        );
+                    })}
+                </div>
+            </div>
+
+            <div className="bg-gray-900/50 p-6 rounded-lg border border-gray-700">
+                <h3 className="text-lg font-semibold text-gray-200 mb-4">Global Model Configuration</h3>
+                <p className="text-sm text-gray-400 mb-6">These settings apply to most text generation models unless overridden. They control the randomness and creativity of the AI's responses.</p>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div>
+                        <label className="block text-sm font-medium text-gray-300 mb-2">Temperature: <span className="font-mono bg-gray-700 px-1 rounded">{globalModelConfig.temperature.toFixed(2)}</span></label>
+                        <input
+                            type="range"
+                            min="0"
+                            max="1"
+                            step="0.01"
+                            value={globalModelConfig.temperature}
+                            onChange={(e) => handleGlobalConfigChange('temperature', parseFloat(e.target.value))}
+                            className="w-full"
+                        />
+                        <p className="text-xs text-gray-400 mt-1">Higher values = more creative, lower = more deterministic.</p>
+                    </div>
+                    <div>
+                        <label className="block text-sm font-medium text-gray-300 mb-2">Top-P: <span className="font-mono bg-gray-700 px-1 rounded">{globalModelConfig.topP.toFixed(2)}</span></label>
+                        <input
+                            type="range"
+                            min="0"
+                            max="1"
+                            step="0.01"
+                            value={globalModelConfig.topP}
+                            onChange={(e) => handleGlobalConfigChange('topP', parseFloat(e.target.value))}
+                            className="w-full"
+                        />
+                        <p className="text-xs text-gray-400 mt-1">Considers tokens with the highest probability mass.</p>
+                    </div>
+                    <div>
+                        <label className="block text-sm font-medium text-gray-300 mb-2">Top-K: <span className="font-mono bg-gray-700 px-1 rounded">{globalModelConfig.topK}</span></label>
+                        <input
+                            type="range"
+                            min="1"
+                            max="100"
+                            step="1"
+                            value={globalModelConfig.topK}
+                            onChange={(e) => handleGlobalConfigChange('topK', parseInt(e.target.value, 10))}
+                            className="w-full"
+                        />
+                         <p className="text-xs text-gray-400 mt-1">Considers the top K most likely tokens.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+
+export const AdminDashboard: React.FC = () => {
+    const { t } = useLocalization();
+    const { showToast } = useToast();
+    const [shops, setShops] = useState<Shop[]>([]);
+    const [users, setUsers] = useState<User[]>([]);
+    const [platformSettings, setPlatformSettings] = useState<PlatformSettings | null>(null);
+    const [editableSettings, setEditableSettings] = useState<PlatformSettings | null>(null);
+    const [isLoading, setIsLoading] = useState(true);
+    const [activeTab, setActiveTab] = useState<AdminTab>('overview');
+    
+    // States for Overview tab
+    const [overviewEndDate, setOverviewEndDate] = useState(new Date());
+    const [overviewStartDate, setOverviewStartDate] = useState(() => {
+        const d = new Date();
+        d.setDate(d.getDate() - 29); // 30 days including today
+        return d;
+    });
+    const [isGeneratingSuggestion, setIsGeneratingSuggestion] = useState(false);
+    const [aiSuggestion, setAiSuggestion] = useState('');
+
+    // States for Shop Management tab
+    const [shopSearchQuery, setShopSearchQuery] = useState('');
+    const [planFilter, setPlanFilter] = useState<SubscriptionPlan | 'all'>('all');
+    const [shopStartDateFilter, setShopStartDateFilter] = useState<Date | null>(null);
+    const [shopEndDateFilter, setShopEndDateFilter] = useState<Date | null>(null);
+
+    const [editingPreset, setEditingPreset] = useState<AIPhotoStudioPreset | 'new' | null>(null);
+     const [confirmationModalConfig, setConfirmationModalConfig] = useState<{
+        isOpen: boolean;
+        title: string;
+        message: React.ReactNode;
+        onConfirm: () => void;
+        confirmText?: string;
+        confirmButtonClass?: string;
+    } | null>(null);
+
+    // State for Persona Rules section
+    const [selectedPersonaTone, setSelectedPersonaTone] = useState<AssistantTone>('male');
+
+
+    useEffect(() => {
+        loadData();
+    }, []);
+
+    const loadData = async () => {
+        setIsLoading(true);
+        try {
+            const [settings, allShops, allUsers] = await Promise.all([
+                api.getPlatformSettings(),
+                api.getAllShops(),
+                api.getAllUsers()
+            ]);
+            setShops(Array.isArray(allShops) ? allShops : []);
+            setUsers(Array.isArray(allUsers) ? allUsers : []);
+            setPlatformSettings(settings);
+            setEditableSettings(JSON.parse(JSON.stringify(settings))); // Deep copy for safe editing
+        } catch (error) {
+            console.error('Error loading admin data:', error);
+            setShops([]);
+            setUsers([]);
+            showToast('Error loading admin data. Please try refreshing.', 'error');
+        } finally {
+            setIsLoading(false);
+        }
+    };
+    
+    const showConfirmation = (config: Omit<NonNullable<typeof confirmationModalConfig>, 'isOpen'>) => {
+        setConfirmationModalConfig({ ...config, isOpen: true });
+    };
+    
+    const closeConfirmation = () => {
+        setConfirmationModalConfig(null);
+    };
+
+    const handlePlanChange = async (shopId: string, newPlan: SubscriptionPlan) => {
+        const shopToUpdate = shops.find(s => s.id === shopId);
+        if (shopToUpdate) {
+            const updatedShop: Shop = {
+                ...shopToUpdate,
+                subscription: {
+                    ...shopToUpdate.subscription,
+                    plan: newPlan,
+                    status: newPlan === 'Trial' ? 'trialing' : 'active',
+                }
+            };
+            await api.saveShop(updatedShop);
+            loadData(); // Refresh data
+        }
+    };
+
+     const handleApprovePayment = async (shopId: string) => {
+        const shopToUpdate = shops.find(s => s.id === shopId);
+        if (shopToUpdate && shopToUpdate.subscription.pendingPlan) {
+            
+            const isDataExtensionPending = shopToUpdate.subscription.dataHistoryExtension?.status === 'pending_activation';
+
+            const updatedShop: Shop = {
+                ...shopToUpdate,
+                subscription: {
+                    ...shopToUpdate.subscription,
+                    plan: shopToUpdate.subscription.pendingPlan,
+                    status: 'active',
+                    pendingPlan: null,
+                    trialEndsAt: null,
+                    periodEndsAt: Date.now() + 30 * 24 * 60 * 60 * 1000, // 30 days from now
+                    ...(isDataExtensionPending && {
+                        dataHistoryExtension: {
+                            ...(shopToUpdate.subscription.dataHistoryExtension || {}),
+                            status: 'active',
+                            subscribedAt: Date.now(),
+                        }
+                    })
+                }
+            };
+            await api.saveShop(updatedShop);
+            loadData();
+        }
+    };
+    
+    const handleRejectPayment = async (shopId: string) => {
+        const shopToUpdate = shops.find(s => s.id === shopId);
+        if (shopToUpdate) {
+            const updatedShop: Shop = {
+                ...shopToUpdate,
+                subscription: {
+                    ...shopToUpdate.subscription,
+                    status: 'expired', // Or back to 'trialing' if applicable
+                    pendingPlan: null,
+                    paymentProof: null,
+                }
+            };
+            await api.saveShop(updatedShop);
+            loadData();
+        }
+    };
+    
+    const handleSettingsSave = async () => {
+        if (editableSettings) {
+            await api.savePlatformSettings(editableSettings);
+            // After saving, we need to re-load to get the dynamically generated tiers
+            loadData();
+            showToast("Platform settings saved successfully!", 'success');
+        }
+    };
+
+    const handlePaymentMethodChange = (id: string, field: keyof Omit<PaymentMethod, 'qrCodeUrl'>, value: string | boolean) => {
+        setEditableSettings(prev => {
+            if (!prev) return prev;
+            const updatedMethods = prev.paymentMethods.map(method => 
+                method.id === id ? { ...method, [field]: value } : method
+            );
+            return { ...prev, paymentMethods: updatedMethods };
+        });
+    };
+    
+    const handleQrCodeUpload = (methodId: string, file: File | null) => {
+        if (!file) return;
+        try {
+            if (!file.type.startsWith('image/')) {
+                throw new Error('Please select an image file.');
+            }
+            if (file.size > 512 * 1024) { 
+                throw new Error('Image size should be less than 512KB.');
+            }
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                const base64String = reader.result as string;
+                setEditableSettings(prev => {
+                    if (!prev) return prev;
+                    const updatedMethods = prev.paymentMethods.map(method => 
+                        method.id === methodId ? { ...method, qrCodeUrl: base64String } : method
+                    );
+                    return { ...prev, paymentMethods: updatedMethods };
+                });
+            };
+            reader.readAsDataURL(file);
+        } catch(error) {
+            if (error instanceof Error) {
+                showToast(error.message, 'error');
+            }
+        }
+    };
+
+    const handleRemoveQrCode = (methodId: string) => {
+        setEditableSettings(prev => {
+            if (!prev) return prev;
+            const updatedMethods = prev.paymentMethods.map(method => 
+                method.id === methodId ? { ...method, qrCodeUrl: '' } : method
+            );
+            return { ...prev, paymentMethods: updatedMethods };
+        });
+    };
+    
+    const handleToneConfigChange = (field: 'toneDescription' | 'mustInclude' | 'mustAvoid', value: string) => {
+        setEditableSettings(prev => {
+            if (!prev) return prev;
+            const updatedConfigs = prev.aiConfig.toneConfigs.map(config =>
+                (config.tone === selectedPersonaTone)
+                    ? { ...config, rules: { ...config.rules, [field]: value } }
+                    : config
+            );
+            return { ...prev, aiConfig: { ...prev!.aiConfig, toneConfigs: updatedConfigs }};
+        });
+    };
+    
+     const handleDataExtensionToggle = async (shopId: string, enabled: boolean) => {
+        const shopToUpdate = shops.find(s => s.id === shopId);
+        if (shopToUpdate) {
+            const updatedShop: Shop = {
+                ...shopToUpdate,
+                subscription: {
+                    ...shopToUpdate.subscription,
+                    dataHistoryExtension: {
+                        ...(shopToUpdate.subscription.dataHistoryExtension || {}),
+                        status: enabled ? 'active' : 'inactive',
+                        subscribedAt: enabled ? Date.now() : undefined,
+                    }
+                }
+            };
+            await api.saveShop(updatedShop);
+            loadData();
+        }
+    };
+    
+    const handleSavePreset = (presetToSave: AIPhotoStudioPreset) => {
+        setEditableSettings(prev => {
+            if (!prev) return prev;
+            const presets = prev.aiConfig.photoStudioConfig.presets;
+            const isNew = !presets.some(p => p.id === presetToSave.id);
+            const updatedPresets = isNew ? [...presets, presetToSave] : presets.map(p => p.id === presetToSave.id ? presetToSave : p);
+            return {
+                ...prev,
+                aiConfig: {
+                    ...prev.aiConfig,
+                    photoStudioConfig: {
+                        ...prev.aiConfig.photoStudioConfig,
+                        presets: updatedPresets,
+                    }
+                }
+            };
+        });
+        setEditingPreset(null);
+    };
+
+    const handleDeletePreset = (id: string) => {
+        const presetName = editableSettings?.aiConfig.photoStudioConfig.presets.find(p => p.id === id)?.name || 'this preset';
+        showConfirmation({
+            title: `Delete Preset`,
+            message: `Are you sure you want to permanently delete the "${presetName}" preset?`,
+            confirmText: 'Delete',
+            confirmButtonClass: 'bg-red-600 hover:bg-red-700',
+            onConfirm: () => {
+                setEditableSettings(prev => {
+                    if (!prev) return prev;
+                    return {
+                        ...prev,
+                        aiConfig: {
+                            ...prev.aiConfig,
+                            photoStudioConfig: {
+                                ...prev.aiConfig.photoStudioConfig,
+                                presets: prev.aiConfig.photoStudioConfig.presets.filter(p => p.id !== id),
+                            }
+                        }
+                    };
+                });
+            }
+        });
+    };
+
+    // --- Overview Metrics ---
+    // Fix: Add defensive array checks for unsanitized data from `getAllShops`.
+    const overviewMetrics = useMemo(() => {
+        const startOfDay = new Date(overviewStartDate);
+        startOfDay.setHours(0, 0, 0, 0);
+        const endOfDay = new Date(overviewEndDate);
+        endOfDay.setHours(23, 59, 59, 999);
+
+        const newUsersCount = users.filter(user => {
+            const userCreationDate = user.createdAt ? new Date(user.createdAt) : null;
+            return userCreationDate && userCreationDate >= startOfDay && userCreationDate <= endOfDay;
+        }).length;
+
+        let platformGmv = 0;
+        let totalOrders = 0;
+        let totalInteractedCustomers = 0;
+
+        shops.forEach(shop => {
+            totalInteractedCustomers += Array.isArray(shop.liveConversations) ? shop.liveConversations.length : 0;
+            const shopSubmissions = Array.isArray(shop.formSubmissions) ? shop.formSubmissions : [];
+            totalOrders += shopSubmissions.length;
+            shopSubmissions.forEach(sub => {
+                if (sub && sub.status !== OrderStatus.Cancelled) {
+                    const submissionTotal = (Array.isArray(sub.orderedProducts) ? sub.orderedProducts : []).reduce((subTotal: number, p) => subTotal + (p.unitPrice * p.quantity), 0);
+                    platformGmv += submissionTotal;
+                }
+            });
+        });
+
+        const plans = platformSettings?.subscriptionPlans || [];
+        const mrr = shops.reduce((total, shop) => {
+            if (shop.subscription.status === 'active') {
+                const planDetails = plans.find(p => p.id === shop.subscription.plan);
+                return total + (planDetails?.price || 0);
+            }
+            return total;
+        }, 0);
+
+        return { newUsersCount, platformGmv, totalOrders, mrr, totalInteractedCustomers };
+    }, [overviewStartDate, overviewEndDate, users, shops, platformSettings]);
+    
+    // Fix: Add defensive array checks for unsanitized data from `getAllShops`.
+    const extendedOverviewMetrics = useMemo(() => {
+        const startOfDay = new Date(overviewStartDate);
+        startOfDay.setHours(0, 0, 0, 0);
+        const endOfDay = new Date(overviewEndDate);
+        endOfDay.setHours(23, 59, 59, 999);
+
+        let newSubscriptions = 0;
+        let activeShops = 0;
+        let aiMessagesProcessed = 0;
+        const planDistribution: { [key: string]: number } = {};
+        const dropoutByPlan: { [key: string]: number } = {};
+        let totalDropouts = 0;
+
+        shops.forEach(shop => {
+            // Plan Distribution
+            const planName = shop.subscription.plan;
+            planDistribution[planName] = (planDistribution[planName] || 0) + 1;
+
+            // Dropout/Churn
+            if (shop.subscription.status === 'expired') {
+                totalDropouts++;
+                dropoutByPlan[planName] = (dropoutByPlan[planName] || 0) + 1;
+            }
+
+            // New Subscriptions (mock logic: owner created within range & not trial)
+            const owner = users.find(u => u.id === shop.ownerId);
+            if (owner?.createdAt && owner.createdAt >= startOfDay.getTime() && owner.createdAt <= endOfDay.getTime() && shop.subscription.plan !== 'Trial') {
+                newSubscriptions++;
+            }
+
+            // Active Shops
+            const hasActivity = (Array.isArray(shop.formSubmissions) ? shop.formSubmissions : []).some(s => s.submittedAt >= startOfDay.getTime() && s.submittedAt <= endOfDay.getTime()) ||
+                                (Array.isArray(shop.liveConversations) ? shop.liveConversations : []).some(c => c.lastMessageAt >= startOfDay.getTime() && c.lastMessageAt <= endOfDay.getTime());
+            if (hasActivity) {
+                activeShops++;
+            }
+
+            // AI Messages Processed
+            (Array.isArray(shop.liveConversations) ? shop.liveConversations : []).forEach(convo => {
+                // FIX: Ensure convo.messages is an array before getting its length.
+                // The getAllShops function doesn't sanitize data, so convo.messages could be a non-array object.
+                aiMessagesProcessed += Array.isArray(convo.messages) ? convo.messages.length : 0;
+            });
+        });
+
+        const arpu = overviewMetrics.mrr > 0 && users.length > 0 ? overviewMetrics.mrr / users.length : 0;
+        
+        return {
+            newSubscriptions,
+            arpu,
+            activeShops,
+            aiMessagesProcessed,
+            planDistribution,
+            dropoutByPlan,
+            totalDropouts,
+        };
+    }, [shops, users, overviewStartDate, overviewEndDate, overviewMetrics.mrr]);
+
+    // Fix: Add defensive array checks for unsanitized data from `getAllShops`.
+    const dataExtensionMetrics = useMemo(() => {
+        const tiers = platformSettings?.dataHistoryTiers || [];
+        let revenue: number = 0;
+        let activeExtensions = 0;
+        let atRiskShops = 0;
+
+        const distribution: { [key: string]: { count: number, label: string } } = {
+            active: { count: 0, label: 'Active' },
+            pending_activation: { count: 0, label: 'Pending Activation' },
+            pending_approval: { count: 0, label: 'Pending Approval' },
+            pending_cancellation: { count: 0, label: 'Pending Cancellation' },
+            pending_deletion: { count: 0, label: 'Pending Deletion (Grace Period)' },
+            deletion_applied: { count: 0, label: 'Deletion Applied' },
+            inactive: { count: 0, label: 'Inactive' }
+        };
+
+        shops.forEach(shop => {
+            const status = shop.subscription.dataHistoryExtension?.status || 'inactive';
+            if (distribution[status]) {
+                distribution[status].count++;
+            }
+
+            if (status === 'active') {
+                activeExtensions++;
+                const totalRecords = (Array.isArray(shop.formSubmissions) ? shop.formSubmissions.length : 0) + (Array.isArray(shop.liveConversations) ? shop.liveConversations.length : 0);
+                const requiredTier = tiers.find(t => totalRecords <= t.recordLimit) || tiers[tiers.length - 1];
+                if (requiredTier) {
+                    // FIX: Explicitly cast `requiredTier.price` to a number. Its type can be uncertain when loaded
+                    // from storage, which could cause a type error on `revenue` in subsequent operations.
+                    revenue += Number(requiredTier.price);
+                }
+            } else if (status === 'inactive' && !shop.subscription.dataRetentionWarningDismissed) {
+                const retentionDays = getRetentionDays(shop.subscription.plan);
+                const warningThreshold = Date.now() - ((retentionDays - 14) * 24 * 60 * 60 * 1000);
+                const allTimestamps = [...(Array.isArray(shop.formSubmissions) ? shop.formSubmissions : []).map(s => s.submittedAt), ...(Array.isArray(shop.liveConversations) ? shop.liveConversations : []).map(c => c.lastMessageAt)];
+                const oldestDataTimestamp = allTimestamps.length > 0 ? Math.min(...allTimestamps) : Date.now();
+                if (oldestDataTimestamp < warningThreshold) {
+                    atRiskShops++;
+                }
+            }
+        });
+        
+        return { revenue, activeExtensions, atRiskShops, distribution };
+    }, [shops, platformSettings]);
+
+    const handleGenerateSuggestion = async () => {
+        setIsGeneratingSuggestion(true);
+        setAiSuggestion('');
+        const prompt = `
+            Analyze the following metrics for the platform's 'Data History Extension' add-on and provide 3-5 concise, actionable suggestions for the platform owner.
+            
+            - Total Shops: ${shops.length}
+            - Total Shops with Active Extension: ${dataExtensionMetrics.activeExtensions}
+            - Monthly Revenue from Extension: ${dataExtensionMetrics.revenue.toLocaleString()} MMK
+            - At-Risk Shops (Data nearing retention limit): ${dataExtensionMetrics.atRiskShops}
+            - Shops in Grace Period (Data pending deletion): ${dataExtensionMetrics.distribution.pending_deletion.count}
+            - Shops where data has been deleted: ${dataExtensionMetrics.distribution.deletion_applied.count}
+
+            Your suggestions should focus on increasing adoption of the extension, reducing churn, and improving user communication. Use markdown for your response.
+        `;
+        try {
+            const suggestion = await api.generateAdminSuggestion(prompt);
+            setAiSuggestion(suggestion);
+        } catch (err) {
+            setAiSuggestion("Sorry, an error occurred while generating suggestions.");
+        } finally {
+            setIsGeneratingSuggestion(false);
+        }
+    };
+
+
+    const filteredShops = useMemo(() => {
+        let filtered = [...shops];
+
+        if (shopStartDateFilter) {
+            const startOfDay = new Date(shopStartDateFilter);
+            startOfDay.setHours(0, 0, 0, 0);
+            filtered = filtered.filter(shop => {
+                const owner = users.find(u => u.id === shop.ownerId);
+                return owner?.createdAt ? owner.createdAt >= startOfDay.getTime() : false;
+            });
+        }
+        if (shopEndDateFilter) {
+            const endOfDay = new Date(shopEndDateFilter);
+            endOfDay.setHours(23, 59, 59, 999);
+            filtered = filtered.filter(shop => {
+                const owner = users.find(u => u.id === shop.ownerId);
+                return owner?.createdAt ? owner.createdAt <= endOfDay.getTime() : false;
+            });
+        }
+
+        if (planFilter !== 'all') {
+            filtered = filtered.filter(shop => shop.subscription.plan === planFilter);
+        }
+
+        if (shopSearchQuery.trim()) {
+            const lowercasedQuery = shopSearchQuery.toLowerCase();
+            filtered = filtered.filter(shop => {
+                const owner = users.find(u => u.id === shop.ownerId);
+                return shop.name.toLowerCase().includes(lowercasedQuery) ||
+                       (owner && owner.username.toLowerCase().includes(lowercasedQuery));
+            });
+        }
+
+        return filtered;
+    }, [shops, users, shopSearchQuery, planFilter, shopStartDateFilter, shopEndDateFilter]);
+
+
+    if (isLoading || !platformSettings || !editableSettings) {
+        return <div className="flex items-center justify-center h-screen bg-gray-900 text-white">Loading Admin Data...</div>;
+    }
+    
+    const pendingShops = shops.filter(s => s.subscription.status === 'pending_approval');
+    
+    const currentToneConfig = editableSettings.aiConfig.toneConfigs.find(
+        c => c.tone === selectedPersonaTone
+    );
+
+    const renderExtensionStatusBadge = (status: string | undefined) => {
+        const statusText = status ? status.replace(/_/g, ' ') : 'Inactive';
+        let colorClasses = 'bg-gray-700 text-gray-300'; // default for inactive
+    
+        switch (status) {
+            case 'active':
+                colorClasses = 'bg-green-800 text-green-200';
+                break;
+            case 'pending_activation':
+            case 'pending_approval':
+                colorClasses = 'bg-blue-800 text-blue-200';
+                break;
+            case 'pending_deletion':
+            case 'pending_cancellation':
+                colorClasses = 'bg-yellow-800 text-yellow-200';
+                break;
+            case 'deletion_applied':
+                colorClasses = 'bg-red-800 text-red-200';
+                break;
+            case 'inactive':
+            default:
+                colorClasses = 'bg-gray-700 text-gray-300';
+                break;
+        }
+    
+        return (
+            <span className={`px-2 py-1 text-xs font-semibold rounded-full capitalize ${colorClasses}`}>
+                {statusText}
+            </span>
+        );
+    };
+
+    return (
+        <>
+            <div className="min-h-screen bg-gray-900 text-white flex">
+                <AdminNavigation
+                    activeTab={activeTab}
+                    pendingApprovals={pendingShops.length}
+                    onTabChange={setActiveTab}
+                />
+                <main className="flex-1 p-8 overflow-y-auto">
+                    <div hidden={activeTab !== 'overview'}>
+                        <div className="flex flex-col md:flex-row items-center justify-between gap-4 mb-6">
+                            <h2 className="text-2xl font-bold">Platform Overview</h2>
+                             <div className="flex items-center gap-2">
+                                <label htmlFor="start-date" className="text-sm text-gray-400">From:</label>
+                                <input type="date" id="start-date" value={toISODateString(overviewStartDate)} onChange={e => setOverviewStartDate(new Date(e.target.value))} className="bg-gray-800 border border-gray-700 rounded-md p-2 text-sm text-white"/>
+                                <label htmlFor="end-date" className="text-sm text-gray-400">To:</label>
+                                <input type="date" id="end-date" value={toISODateString(overviewEndDate)} onChange={e => setOverviewEndDate(new Date(e.target.value))} className="bg-gray-800 border border-gray-700 rounded-md p-2 text-sm text-white"/>
+                            </div>
+                        </div>
+                        
+                        <div className="space-y-8">
+                            <section>
+                                <h3 className="text-xl font-semibold text-gray-300 mb-4">{t('platformRevenueGrowth')}</h3>
+                                <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+                                    <KpiCard title="Platform Revenue (MRR)" value={`${overviewMetrics.mrr.toLocaleString()}`} subtext="MMK / month" />
+                                    <KpiCard title="New Users" value={overviewMetrics.newUsersCount} subtext={`in selected range`}/>
+                                    <KpiCard title={t('newSubscriptions')} value={extendedOverviewMetrics.newSubscriptions} subtext={`in selected range`}/>
+                                    <KpiCard title={t('arpuMonthly')} value={`${extendedOverviewMetrics.arpu.toLocaleString(undefined, { maximumFractionDigits: 0 })}`} subtext="MMK" />
+                                </div>
+                                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+                                    <div className="bg-gray-800 p-6 rounded-lg">
+                                        <h4 className="font-semibold text-gray-300 mb-4">{t('subscriptionPlanBreakdown')}</h4>
+                                        <div className="space-y-3">
+                                            {Object.entries(extendedOverviewMetrics.planDistribution).map(([plan, count]) => {
+                                                const percentage = (count / shops.length) * 100;
+                                                return (
+                                                    <div key={plan}>
+                                                        <div className="flex justify-between text-sm mb-1">
+                                                            <span>{plan}</span>
+                                                            <span>{count} Shops</span>
+                                                        </div>
+                                                        <div className="w-full bg-gray-700 rounded-full h-2.5">
+                                                            <div className="bg-blue-500 h-2.5 rounded-full" style={{ width: `${percentage}%` }}></div>
+                                                        </div>
+                                                    </div>
+                                                )
+                                            })}
+                                        </div>
+                                    </div>
+                                    <div className="bg-gray-800 p-6 rounded-lg">
+                                        <h4 className="font-semibold text-gray-300 mb-4">{t('subscriptionDropoutAnalysis')}</h4>
+                                        <p className="text-4xl font-bold text-red-400">{extendedOverviewMetrics.totalDropouts}</p>
+                                        <p className="text-sm text-gray-400 mb-4">{t('expiredSubscriptions')}</p>
+                                        <div className="space-y-2 text-sm border-t border-gray-700 pt-3">
+                                            <p className="text-xs text-gray-500 font-semibold uppercase">{t('byPlan')}</p>
+                                            {Object.entries(extendedOverviewMetrics.dropoutByPlan).length > 0 ? Object.entries(extendedOverviewMetrics.dropoutByPlan).map(([plan, count]) => (
+                                                <div key={plan} className="flex justify-between">
+                                                    <span className="text-gray-300">{plan}</span>
+                                                    <span className="font-semibold">{count}</span>
+                                                </div>
+                                            )) : <p className="text-gray-500">No dropouts in dataset.</p>}
+                                        </div>
+                                    </div>
+                                </div>
+                            </section>
+
+                            <section>
+                                <h3 className="text-xl font-semibold text-gray-300 mb-4">{t('platformEngagementMetrics')}</h3>
+                                 <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
+                                    <KpiCard title="Platform GMV" value={`${overviewMetrics.platformGmv.toLocaleString()}`} subtext="MMK (All Shops)" />
+                                    <KpiCard title="Total Orders" value={overviewMetrics.totalOrders.toLocaleString()} />
+                                    <KpiCard title={t('activeShops')} value={extendedOverviewMetrics.activeShops} subtext={`in selected range`} />
+                                    <KpiCard title="Total Interacted Customers" value={overviewMetrics.totalInteractedCustomers.toLocaleString()} subtext="Total conversations" />
+                                    <KpiCard title={t('aiMessagesProcessed')} value={extendedOverviewMetrics.aiMessagesProcessed.toLocaleString()} />
+                                    <KpiCard title="Pending Approvals" value={pendingShops.length} />
+                                </div>
+                            </section>
+
+                            <section className="bg-gray-800 p-6 rounded-lg">
+                                 <h3 className="text-xl font-semibold text-gray-300 mb-4">{t('dataHistoryExtensionOverview')}</h3>
+                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                                     <KpiCard title={t('dataExtensionRevenue')} value={`${dataExtensionMetrics.revenue.toLocaleString()}`} subtext="MMK / month" />
+                                     <KpiCard title={t('activeExtensions')} value={dataExtensionMetrics.activeExtensions} subtext={`out of ${shops.length} shops`} />
+                                     <KpiCard title={t('atRiskShops')} value={dataExtensionMetrics.atRiskShops} subtext="Data nearing retention limit" />
+                                 </div>
+                                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                                    <div>
+                                        <h4 className="font-semibold text-gray-300 mb-3">{t('statusDistribution')}</h4>
+                                        <div className="space-y-2">
+                                            {Object.values(dataExtensionMetrics.distribution).map((status: { count: number; label: string; }) => {
+                                                const percentage = shops.length > 0 ? (status.count / shops.length) * 100 : 0;
+                                                return (
+                                                    <div key={status.label}>
+                                                        <div className="flex justify-between text-sm mb-1">
+                                                            <span>{status.label}</span>
+                                                            <span>{status.count}</span>
+                                                        </div>
+                                                        <div className="w-full bg-gray-700 rounded-full h-2"><div className="bg-blue-500 h-2 rounded-full" style={{width: `${percentage}%`}}></div></div>
+                                                    </div>
+                                                );
+                                            })}
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <h4 className="font-semibold text-gray-300 mb-3">{t('aiAnalysis')}</h4>
+                                        <button onClick={handleGenerateSuggestion} disabled={isGeneratingSuggestion} className="w-full flex items-center justify-center gap-2 py-2 px-4 bg-purple-600 hover:bg-purple-700 rounded-lg text-sm font-semibold disabled:bg-gray-600">
+                                            <SparklesIcon className="w-4 h-4" /> {t('generateAISuggestions')}
+                                        </button>
+                                        <div className="mt-4">
+                                            {isGeneratingSuggestion && <p className="text-center text-gray-400 text-sm">Analyzing data...</p>}
+                                            {aiSuggestion && (
+                                                <div className="prose prose-sm prose-invert text-gray-300 max-w-none prose-p:my-2 prose-ul:my-2 prose-strong:text-white bg-gray-900/50 p-3 rounded-md">
+                                                    <ReactMarkdown>{aiSuggestion}</ReactMarkdown>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                 </div>
+                            </section>
+                        </div>
+                    </div>
+                    <div hidden={activeTab !== 'approvals'}>
+                        <div className="space-y-8">
+                            <div className="bg-gray-800 p-6 rounded-lg">
+                                <h2 className="text-xl font-bold mb-4">Subscription Approvals</h2>
+                                {pendingShops.length === 0 ? (<p className="text-gray-400">No pending payments to review.</p>) : (
+                                    <div className="space-y-4">
+                                        {pendingShops.map(shop => {
+                                            const planDetails = platformSettings.subscriptionPlans.find(p => p.id === shop.subscription.pendingPlan);
+                                            let dataTierPrice = 0;
+                                            let dataTierName: string | undefined;
+
+                                            const isExtensionPending = shop.subscription.dataHistoryExtension?.status === 'pending_activation';
+                                            if (isExtensionPending) {
+                                                const totalRecords = (Array.isArray(shop.formSubmissions) ? shop.formSubmissions.length : 0) + (Array.isArray(shop.liveConversations) ? shop.liveConversations.length : 0);
+                                                const requiredTier = platformSettings.dataHistoryTiers.find(t => totalRecords <= t.recordLimit) || platformSettings.dataHistoryTiers[platformSettings.dataHistoryTiers.length - 1];
+                                                dataTierPrice = requiredTier?.price || 0;
+                                                dataTierName = requiredTier?.name;
+                                            }
+                                            
+                                            const totalDue = (planDetails?.price || 0) + dataTierPrice;
+
+                                            return (
+                                            <div key={shop.id} className="bg-gray-700 p-4 rounded-lg flex flex-col md:flex-row items-center gap-4">
+                                                <div className="flex-grow">
+                                                    <p className="font-bold text-white">{shop.name}</p>
+                                                    <p className="text-sm text-gray-300">User: {users.find(u => u.id === shop.ownerId)?.username || 'N/A'}</p>
+                                                    <div className="text-sm text-blue-300 mt-2 border-t border-gray-600 pt-2 space-y-1">
+                                                        <div>{planDetails?.name} Plan: <strong className="float-right">{planDetails?.price.toLocaleString()} MMK</strong></div>
+                                                        {isExtensionPending && <div>Data Extension ({dataTierName}): <strong className="float-right">{dataTierPrice.toLocaleString()} MMK</strong></div>}
+                                                        <div className="font-bold text-base">Total Due: <strong className="float-right">{totalDue.toLocaleString()} MMK</strong></div>
+                                                    </div>
+                                                </div>
+                                                {shop.subscription.paymentProof && (
+                                                    <a href={shop.subscription.paymentProof} target="_blank" rel="noopener noreferrer" className="flex-shrink-0">
+                                                        <img src={shop.subscription.paymentProof} alt="Payment Proof" className="w-24 h-24 object-cover rounded-md border-2 border-gray-600 hover:border-blue-500" />
+                                                    </a>
+                                                )}
+                                                <div className="flex gap-2 self-center md:self-end">
+                                                    <button onClick={() => handleRejectPayment(shop.id)} className="px-4 py-2 text-sm bg-red-600 hover:bg-red-700 rounded-md font-semibold">Reject</button>
+                                                    <button onClick={() => handleApprovePayment(shop.id)} className="px-4 py-2 text-sm bg-green-600 hover:bg-green-700 rounded-md font-semibold">Approve</button>
+                                                </div>
+                                            </div>
+                                            );
+                                        })}
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                    <div hidden={activeTab !== 'shops'}>
+                        <div className="bg-gray-800 rounded-lg overflow-hidden">
+                            <div className="p-6">
+                                <h2 className="text-xl font-bold mb-4">Shops Management</h2>
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 items-end">
+                                    <div className="relative">
+                                        <label className="text-xs text-gray-400">Search by Name/Owner</label>
+                                        <SearchIcon className="w-4 h-4 text-gray-400 absolute left-3 bottom-3" />
+                                        <input
+                                            type="text"
+                                            placeholder="Search..."
+                                            value={shopSearchQuery}
+                                            onChange={e => setShopSearchQuery(e.target.value)}
+                                            className="w-full bg-gray-700 border border-gray-600 rounded-md py-2 pl-9 pr-3 text-sm"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="text-xs text-gray-400">Filter by Plan</label>
+                                        <select
+                                            value={planFilter}
+                                            onChange={e => setPlanFilter(e.target.value as any)}
+                                            className="w-full bg-gray-700 border border-gray-600 rounded-md p-2 text-sm"
+                                        >
+                                            <option value="all">All Plans</option>
+                                            {platformSettings.subscriptionPlans.filter(p => !p.isTemplate).map(p => <option key={p.id} value={p.id}>{p.tierName ? `${p.name} - ${p.tierName}` : p.name}</option>)}
+                                            <option value="Trial">Trial</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label className="text-xs text-gray-400">Creation Start Date</label>
+                                        <input type="date" value={toISODateString(shopStartDateFilter)} onChange={e => setShopStartDateFilter(e.target.value ? new Date(e.target.value) : null)} className="w-full bg-gray-700 border border-gray-600 rounded-md p-2 text-sm" />
+                                    </div>
+                                    <div>
+                                        <label className="text-xs text-gray-400">Creation End Date</label>
+                                        <input type="date" value={toISODateString(shopEndDateFilter)} onChange={e => setShopEndDateFilter(e.target.value ? new Date(e.target.value) : null)} className="w-full bg-gray-700 border border-gray-600 rounded-md p-2 text-sm" />
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="overflow-x-auto">
+                                <table className="min-w-full divide-y divide-gray-700">
+                                     <thead className="bg-gray-900/50">
+                                    <tr>
+                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Shop Name</th>
+                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Owner</th>
+                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Subscription Plan</th>
+                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Default Retention</th>
+                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Extension Active</th>
+                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Extension Status</th>
+                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Total Revenue</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="bg-gray-800 divide-y divide-gray-700">
+                                    {filteredShops.length > 0 ? filteredShops.map(shop => {
+                                        const owner = users.find(u => u.id === shop.ownerId);
+                                        const shopRevenue = (Array.isArray(shop.formSubmissions) ? shop.formSubmissions : [])
+                                        .filter(sub => sub && sub.status !== 'Cancelled')
+                                        .reduce((total: number, sub: FormSubmission) => {
+                                            const submissionTotal = (Array.isArray(sub.orderedProducts) ? sub.orderedProducts : [])
+                                                .reduce((subTotal: number, p) => subTotal + (p.unitPrice * p.quantity), 0);
+                                            return total + submissionTotal;
+                                        }, 0);
+
+                                        return (
+                                        <tr key={shop.id}>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-white">{shop.name}</td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">{owner?.username || 'Unknown'}</td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
+                                                 <select
+                                                    value={shop.subscription.plan}
+                                                    onChange={(e) => handlePlanChange(shop.id, e.target.value as SubscriptionPlan)}
+                                                    className="bg-gray-700 border border-gray-600 rounded-md p-1.5 text-xs text-white"
+                                                >
+                                                    {platformSettings.subscriptionPlans.filter(p => !p.isTemplate).map(p => <option key={p.id} value={p.id}>{p.tierName ? `${p.name} - ${p.tierName}` : p.name}</option>)}
+                                                    <option value="Trial">Trial</option>
+                                                </select>
+                                            </td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">{getRetentionDays(shop.subscription.plan)} Days</td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm">
+                                                <ToggleSwitch
+                                                    enabled={shop.subscription.dataHistoryExtension?.status === 'active'}
+                                                    onChange={(enabled) => handleDataExtensionToggle(shop.id, enabled)}
+                                                />
+                                            </td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm">
+                                                {renderExtensionStatusBadge(shop.subscription.dataHistoryExtension?.status)}
+                                            </td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-blue-400">{shopRevenue.toLocaleString()} MMK</td>
+                                        </tr>
+                                        );
+                                    }) : (
+                                        <tr>
+                                            <td colSpan={7} className="text-center py-10 text-gray-500">
+                                                No shops found matching your criteria.
+                                            </td>
+                                        </tr>
+                                    )}
+                                </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <div hidden={activeTab !== 'users'}>
+                         <div className="bg-gray-800 rounded-lg overflow-hidden">
+                            <div className="p-6"><h2 className="text-xl font-bold">User Management</h2></div>
+                            <div className="overflow-x-auto">
+                                <table className="min-w-full divide-y divide-gray-700">
+                                    <thead className="bg-gray-900/50">
+                                        <tr>
+                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Username</th>
+                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">User ID</th>
+                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Created At</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="bg-gray-800 divide-y divide-gray-700">
+                                        {users.map(user => (
+                                            <tr key={user.id}>
+                                                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-white">{user.username}</td>
+                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">{user.id}</td>
+                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">{user.createdAt ? new Date(user.createdAt).toLocaleString() : 'N/A'}</td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <div hidden={activeTab !== 'ai_behavior'}>
+                        <div className="bg-gray-800 p-6 rounded-lg mb-8">
+                            {editingPreset !== null && (
+                                <PresetEditorModal
+                                    preset={editingPreset === 'new' ? null : editingPreset}
+                                    onSave={handleSavePreset}
+                                    onClose={() => setEditingPreset(null)}
+                                    showToast={showToast}
+                                />
+                            )}
+                            <h2 className="text-xl font-bold mb-6">Global AI Behavior & Rules</h2>
+                            <div className="space-y-6">
+                                <div className="bg-gray-900/50 p-4 rounded-lg border border-gray-700">
+                                    <h4 className="text-lg font-semibold mb-3 text-gray-200">Global Rules</h4>
+                                    <div className="space-y-4">
+                                        <div>
+                                        <label className="block text-sm font-medium text-gray-300 mb-1">Global System Instruction</label>
+                                        <textarea
+                                            value={editableSettings.aiConfig.globalSystemInstruction}
+                                            onChange={e => setEditableSettings(prev => ({ ...prev!, aiConfig: {...prev!.aiConfig, globalSystemInstruction: e.target.value }}))}
+                                            className="w-full bg-gray-700 border border-gray-600 rounded p-2 text-sm text-white"
+                                            rows={3}
+                                            placeholder="A base instruction for all AI assistants..."
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-300 mb-1">Forbidden Topics (comma-separated)</label>
+                                        <input
+                                            type="text"
+                                            value={editableSettings.aiConfig.forbiddenTopics}
+                                            onChange={e => setEditableSettings(prev => ({ ...prev!, aiConfig: {...prev!.aiConfig, forbiddenTopics: e.target.value }}))}
+                                            className="w-full bg-gray-700 border border-gray-600 rounded p-2 text-sm text-white"
+                                            placeholder="e.g., politics, religion, violence"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-300 mb-1">Mandatory Safety Response</label>
+                                        <textarea
+                                            value={editableSettings.aiConfig.mandatorySafetyResponse}
+                                            onChange={e => setEditableSettings(prev => ({ ...prev!, aiConfig: {...prev!.aiConfig, mandatorySafetyResponse: e.target.value }}))}
+                                            className="w-full bg-gray-700 border border-gray-600 rounded p-2 text-sm text-white"
+                                            rows={2}
+                                            placeholder="e.g., I cannot discuss that topic."
+                                        />
+                                    </div>
+                                    </div>
+                                </div>
+
+                                <div className="bg-gray-900/50 p-4 rounded-lg border border-gray-700">
+                                    <h4 className="text-lg font-semibold mb-3 text-gray-200">Conversational Commerce Logic</h4>
+                                    <div className="space-y-4">
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-300 mb-1">
+                                                Instructions for Pro Plans (Full Commerce)
+                                            </label>
+                                            <textarea
+                                                value={editableSettings.aiConfig.conversationalCommerceConfig.proPlanInstructions}
+                                                onChange={e => setEditableSettings(prev => ({
+                                                    ...prev!,
+                                                    aiConfig: {
+                                                        ...prev!.aiConfig,
+                                                        conversationalCommerceConfig: {
+                                                            ...prev!.aiConfig.conversationalCommerceConfig,
+                                                            proPlanInstructions: e.target.value
+                                                        }
+                                                    }
+                                                }))}
+                                                className="w-full bg-gray-700 border border-gray-600 rounded p-2 text-sm text-white font-mono text-xs"
+                                                rows={12}
+                                                placeholder="Enter the detailed instructions for the AI when full conversational commerce is enabled..."
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-300 mb-1">
+                                                Instructions for Starter Plans (Assisted Ordering)
+                                            </label>
+                                            <textarea
+                                                value={editableSettings.aiConfig.conversationalCommerceConfig.starterPlanInstructions}
+                                                onChange={e => setEditableSettings(prev => ({
+                                                    ...prev!,
+                                                    aiConfig: {
+                                                        ...prev!.aiConfig,
+                                                        conversationalCommerceConfig: {
+                                                            ...prev!.aiConfig.conversationalCommerceConfig,
+                                                            starterPlanInstructions: e.target.value
+                                                        }
+                                                    }
+                                                }))}
+                                                className="w-full bg-gray-700 border border-gray-600 rounded p-2 text-sm text-white font-mono text-xs"
+                                                rows={12}
+                                                placeholder="Enter the hand-off instructions for the AI when full conversational commerce is disabled..."
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="bg-gray-900/50 p-4 rounded-lg border border-gray-700">
+                                    <h4 className="text-lg font-semibold mb-3 text-gray-200">Granular Persona Rules</h4>
+                                    <div className="flex items-center gap-4 mb-4">
+                                        <div>
+                                            <label className="text-xs text-gray-400">Tone</label>
+                                             <div className="flex items-center gap-1 bg-gray-800 p-1 rounded-md">
+                                                <button onClick={() => setSelectedPersonaTone('male')} className={`px-3 py-1 text-xs rounded ${selectedPersonaTone === 'male' ? 'bg-blue-600 text-white' : 'hover:bg-gray-700'}`}>Male</button>
+                                                <button onClick={() => setSelectedPersonaTone('female')} className={`px-3 py-1 text-xs rounded ${selectedPersonaTone === 'female' ? 'bg-blue-600 text-white' : 'hover:bg-gray-700'}`}>Female</button>
+                                                <button onClick={() => setSelectedPersonaTone('neutral')} className={`px-3 py-1 text-xs rounded ${selectedPersonaTone === 'neutral' ? 'bg-blue-600 text-white' : 'hover:bg-gray-700'}`}>Neutral</button>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {currentToneConfig ? (
+                                        <div className="mt-4 pt-4 border-t border-gray-600 space-y-3">
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-300 mb-1">Tone Description & Persona</label>
+                                                <textarea
+                                                    value={currentToneConfig.rules.toneDescription}
+                                                    onChange={e => handleToneConfigChange('toneDescription', e.target.value)}
+                                                    className="w-full bg-gray-700 border border-gray-600 rounded p-2 text-sm text-white"
+                                                    rows={4}
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-300 mb-1">Must Include (comma-separated)</label>
+                                                <input
+                                                    type="text"
+                                                    value={currentToneConfig.rules.mustInclude || ''}
+                                                    onChange={e => handleToneConfigChange('mustInclude', e.target.value)}
+                                                    className="w-full bg-gray-700 border border-gray-600 rounded p-2 text-sm text-white"
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-300 mb-1">Must Avoid (comma-separated)</label>
+                                                <input
+                                                    type="text"
+                                                    value={currentToneConfig.rules.mustAvoid || ''}
+                                                    onChange={e => handleToneConfigChange('mustAvoid', e.target.value)}
+                                                    className="w-full bg-gray-700 border border-gray-600 rounded p-2 text-sm text-white"
+                                                />
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        <p className="text-sm text-gray-500 mt-4 pt-4 border-t border-gray-600">Configuration not found for the selected tone.</p>
+                                    )}
+                                </div>
+                                <div className="bg-gray-900/50 p-4 rounded-lg border border-gray-700">
+                                    <h4 className="text-lg font-semibold mb-3 text-gray-200">AI Description Generator Settings</h4>
+                                    <div className="space-y-4">
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-300 mb-1">Base Prompt</label>
+                                            <textarea value={editableSettings.aiConfig.descriptionGeneratorConfig.basePrompt} onChange={e => setEditableSettings(prev => ({...prev!,aiConfig: {...prev!.aiConfig,descriptionGeneratorConfig: {...prev!.aiConfig.descriptionGeneratorConfig,basePrompt: e.target.value,},},}))} className="w-full bg-gray-700 border border-gray-600 rounded p-2 text-sm" rows={3}/>
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-300 mb-1">Format Instruction</label>
+                                            <textarea value={editableSettings.aiConfig.descriptionGeneratorConfig.formatInstruction} onChange={e => setEditableSettings(prev => ({...prev!,aiConfig: {...prev!.aiConfig,descriptionGeneratorConfig: {...prev!.aiConfig.descriptionGeneratorConfig,formatInstruction: e.target.value,},},}))} className="w-full bg-gray-700 border border-gray-600 rounded p-2 text-sm" rows={5}/>
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-300 mb-1">Character Limit</label>
+                                            <input type="number" value={editableSettings.aiConfig.descriptionGeneratorConfig.characterLimit} onChange={e => setEditableSettings(prev => ({...prev!,aiConfig: {...prev!.aiConfig,descriptionGeneratorConfig: {...prev!.aiConfig.descriptionGeneratorConfig,characterLimit: parseInt(e.target.value, 10),},},}))} className="w-full bg-gray-700 border border-gray-600 rounded p-2 text-sm" />
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="bg-gray-900/50 p-4 rounded-lg border border-gray-700">
+                                    <h4 className="text-lg font-semibold mb-3 text-gray-200">AI Photo Studio Presets</h4>
+                                    <div className="space-y-2">
+                                        {editableSettings.aiConfig.photoStudioConfig.presets.map(preset => (
+                                            <div key={preset.id} className="bg-gray-700 p-2 rounded-md flex items-center justify-between gap-2">
+                                                <div className="flex-grow">
+                                                    <p className="font-semibold text-white text-sm">{preset.name}</p>
+                                                    <p className="text-xs text-gray-400 truncate">{preset.prompt}</p>
+                                                </div>
+                                                <div className="flex-shrink-0 flex gap-1">
+                                                    <button onClick={() => setEditingPreset(preset)} className="p-1 text-gray-300 hover:text-white">Edit</button>
+                                                    <button onClick={() => handleDeletePreset(preset.id)} className="p-1 text-gray-400 hover:text-red-400"><TrashIcon className="w-4 h-4" /></button>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                    <button onClick={() => setEditingPreset('new')} className="w-full flex items-center justify-center mt-3 p-2 border-2 border-dashed border-gray-600 hover:border-gray-500 hover:bg-gray-700/50 rounded-md text-sm text-gray-400 transition-colors">
+                                        <PlusIcon className="w-4 h-4 mr-2" /> Add New Preset
+                                    </button>
+                                </div>
+
+                                <div className="bg-gray-900/50 p-4 rounded-lg border border-gray-700">
+                                    <h4 className="text-lg font-semibold mb-3 text-gray-200">Data Source Permissions</h4>
+                                    <div className="space-y-3">
+                                        <label className="flex items-center text-sm cursor-pointer">
+                                            <input
+                                                type="checkbox"
+                                                checked={editableSettings.aiConfig.aiPermissions.allowProductCatalog}
+                                                onChange={e => setEditableSettings(prev => ({ ...prev!, aiConfig: {...prev!.aiConfig, aiPermissions: { ...prev!.aiConfig.aiPermissions, allowProductCatalog: e.target.checked }}}))}
+                                                className="h-4 w-4 rounded bg-gray-600 border border-gray-500 text-blue-500 focus:ring-blue-500"
+                                            />
+                                            <span className="ml-2">Allow AI to access Product Catalog data</span>
+                                        </label>
+                                        <label className="flex items-center text-sm cursor-pointer">
+                                            <input
+                                                type="checkbox"
+                                                checked={editableSettings.aiConfig.aiPermissions.allowTrainingData}
+                                                onChange={e => setEditableSettings(prev => ({ ...prev!, aiConfig: {...prev!.aiConfig, aiPermissions: { ...prev!.aiConfig.aiPermissions, allowTrainingData: e.target.checked }}}))}
+                                                className="h-4 w-4 rounded bg-gray-600 border border-gray-500 text-blue-500 focus:ring-blue-500"
+                                            />
+                                            <span className="ml-2">Allow AI to access custom 'Train AI' data</span>
+                                        </label>
+                                        <label className="flex items-center text-sm cursor-pointer">
+                                            <input
+                                                type="checkbox"
+                                                checked={editableSettings.aiConfig.aiPermissions.allowConversationalOrdering}
+                                                onChange={e => setEditableSettings(prev => ({ ...prev!, aiConfig: {...prev!.aiConfig, aiPermissions: { ...prev!.aiConfig.aiPermissions, allowConversationalOrdering: e.target.checked }}}))}
+                                                className="h-4 w-4 rounded bg-gray-600 border border-gray-500 text-blue-500 focus:ring-blue-500"
+                                            />
+                                            <span className="ml-2">Allow AI to create orders via chat (Function Calling)</span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="mt-8 pt-6 border-t border-gray-700 text-right">
+                                <button onClick={handleSettingsSave} className="px-6 py-2 text-sm bg-blue-600 hover:bg-blue-700 rounded-md font-semibold">Save All Settings</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div hidden={activeTab !== 'api_models'}>
+                        <div className="bg-gray-800 p-6 rounded-lg mb-8">
+                             <h2 className="text-xl font-bold mb-6">API & Model Configuration</h2>
+                            <APIModelConfigPanel settings={editableSettings} onSettingsChange={setEditableSettings} />
+                             <div className="mt-8 pt-6 border-t border-gray-700 text-right">
+                                <button onClick={handleSettingsSave} className="px-6 py-2 text-sm bg-blue-600 hover:bg-blue-700 rounded-md font-semibold">Save All Settings</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div hidden={activeTab !== 'plan_management'}>
+                        <div className="bg-gray-800 p-6 rounded-lg mb-8">
+                            <h2 className="text-xl font-bold mb-6">Plan & Feature Management</h2>
+                            <PlanManagementPanel settings={editableSettings} onSettingsChange={setEditableSettings} />
+                            <div className="mt-8 pt-6 border-t border-gray-700 text-right">
+                                <button onClick={handleSettingsSave} className="px-6 py-2 text-sm bg-blue-600 hover:bg-blue-700 rounded-md font-semibold">Save All Settings</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div hidden={activeTab !== 'localization'}>
+                        <div className="bg-gray-800 p-6 rounded-lg mb-8">
+                            <h2 className="text-xl font-bold mb-6">Localization Settings</h2>
+                            <LocalizationPanel settings={editableSettings} onSettingsChange={setEditableSettings} />
+                             <div className="mt-8 pt-6 border-t border-gray-700 text-right">
+                                <button onClick={handleSettingsSave} className="px-6 py-2 text-sm bg-blue-600 hover:bg-blue-700 rounded-md font-semibold">Save All Settings</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div hidden={activeTab !== 'settings'}>
+                        <div className="bg-gray-800 p-6 rounded-lg mb-8">
+                            <h2 className="text-xl font-bold mb-6">Platform Settings</h2>
+                            <div className="space-y-8">
+                                {/* Other settings sections */}
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
+                                   {/* ... General, Payment Methods, etc ... */}
+                                        <div className="space-y-4">
+                                 <h3 className="text-lg font-semibold text-gray-200">General</h3>
+                                 <div>
+                                    <label className="flex items-center text-sm cursor-pointer">
+                                        <input
+                                            type="checkbox"
+                                            checked={editableSettings.maintenanceMode}
+                                            onChange={e => setEditableSettings(prev => ({...prev!, maintenanceMode: e.target.checked}))}
+                                            className="h-4 w-4 rounded bg-gray-600 border border-gray-500 text-blue-500 focus:ring-blue-500"
+                                        />
+                                        <span className="ml-2">Maintenance Mode</span>
+                                    </label>
+                                </div>
+                                 <div>
+                                    <label className="block text-sm font-medium text-gray-300 mb-1">Announcement Message</label>
+                                    <input
+                                        type="text"
+                                        value={editableSettings.announcement.message}
+                                        onChange={e => setEditableSettings(prev => ({ ...prev!, announcement: {...prev!.announcement, message: e.target.value }}))}
+                                        className="w-full bg-gray-700 border border-gray-600 rounded p-2 text-sm text-white"
+                                    />
+                                     <label className="flex items-center text-xs text-gray-400 mt-2 cursor-pointer">
+                                        <input
+                                            type="checkbox"
+                                            checked={editableSettings.announcement.enabled}
+                                            onChange={e => setEditableSettings(prev => ({ ...prev!, announcement: {...prev!.announcement, enabled: e.target.checked }}))}
+                                            className="h-4 w-4 rounded bg-gray-600 border border-gray-500 text-blue-500 focus:ring-blue-500"
+                                        />
+                                        <span className="ml-2">Enable Announcement</span>
+                                    </label>
+                                </div>
+                            </div>
+                            {/* Payment Methods */}
+                            <div className="mt-6 md:mt-0">
+                                <h3 className="text-lg font-semibold mb-3 text-gray-200">Payment Methods</h3>
+                                <div className="space-y-4">
+                                    {editableSettings.paymentMethods.map(method => (
+                                        <div key={method.id} className="bg-gray-900/50 p-4 rounded-md border border-gray-700">
+                                            <div className="flex items-center justify-between mb-2">
+                                                <span className="font-semibold text-white">{method.name}</span>
+                                                <label className="flex items-center cursor-pointer">
+                                                    <span className="mr-2 text-xs">{method.enabled ? 'Enabled' : 'Disabled'}</span>
+                                                    <div className="relative">
+                                                        <input type="checkbox" className="sr-only peer" checked={method.enabled} onChange={e => handlePaymentMethodChange(method.id, 'enabled', e.target.checked)} />
+                                                        <div className="block bg-gray-600 w-10 h-6 rounded-full peer-checked:bg-blue-600"></div>
+                                                        <div className="dot absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-transform peer-checked:translate-x-full"></div>
+                                                    </div>
+                                                </label>
+                                            </div>
+                                            <textarea
+                                                value={method.details}
+                                                onChange={e => handlePaymentMethodChange(method.id, 'details', e.target.value)}
+                                                placeholder={`Enter details for ${method.name}`}
+                                                className="w-full bg-gray-700 border border-gray-600 rounded p-2 text-sm text-white placeholder-gray-400"
+                                                rows={3}
+                                            />
+                                            <div className="mt-3 flex items-center gap-4">
+                                                {method.qrCodeUrl ? (
+                                                    <img src={method.qrCodeUrl} alt="QR Code" className="w-20 h-20 rounded-md bg-white p-1" />
+                                                ) : (
+                                                    <div className="w-20 h-20 rounded-md bg-gray-700 flex items-center justify-center text-xs text-gray-400">No QR</div>
+                                                )}
+                                                <div className="flex-grow">
+                                                    <label htmlFor={`qr-upload-${method.id}`} className="block text-xs font-medium text-gray-300 mb-1">QR Code Image</label>
+                                                    <input 
+                                                        type="file" 
+                                                        id={`qr-upload-${method.id}`}
+                                                        accept="image/*"
+                                                        onChange={(e) => handleQrCodeUpload(method.id, e.target.files ? e.target.files[0] : null)}
+                                                        className="w-full text-xs text-gray-300 file:mr-2 file:py-1 file:px-2 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-gray-700 file:text-gray-200 hover:file:bg-gray-600"
+                                                    />
+                                                    {method.qrCodeUrl && (
+                                                        <button onClick={() => handleRemoveQrCode(method.id)} className="text-xs text-red-400 hover:underline mt-1">Remove QR</button>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                                </div>
+                                <div className="pt-6 border-t border-gray-700">
+                                    <h3 className="text-lg font-semibold mb-3 text-gray-200 flex items-center gap-2"><DatabaseIcon className="w-5 h-5"/> Data History Tier Configuration</h3>
+                                    <div className="bg-gray-900/50 p-4 rounded-lg border border-gray-700 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-300 mb-1">Base Record Limit</label>
+                                            <input
+                                                type="number"
+                                                value={editableSettings.dataHistoryTierConfig.baseRecordLimit}
+                                                onChange={e => setEditableSettings(prev => ({ ...prev!, dataHistoryTierConfig: {...prev!.dataHistoryTierConfig, baseRecordLimit: Number(e.target.value) }}))}
+                                                className="w-full bg-gray-700 border border-gray-600 rounded p-2 text-sm text-white"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-300 mb-1">Base Price (MMK)</label>
+                                            <input
+                                                type="number"
+                                                value={editableSettings.dataHistoryTierConfig.basePrice}
+                                                onChange={e => setEditableSettings(prev => ({ ...prev!, dataHistoryTierConfig: {...prev!.dataHistoryTierConfig, basePrice: Number(e.target.value) }}))}
+                                                className="w-full bg-gray-700 border border-gray-600 rounded p-2 text-sm text-white"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-300 mb-1">Record Increment</label>
+                                            <input
+                                                type="number"
+                                                value={editableSettings.dataHistoryTierConfig.recordIncrement}
+                                                onChange={e => setEditableSettings(prev => ({ ...prev!, dataHistoryTierConfig: {...prev!.dataHistoryTierConfig, recordIncrement: Number(e.target.value) }}))}
+                                                className="w-full bg-gray-700 border border-gray-600 rounded p-2 text-sm text-white"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-300 mb-1">Price Increment (MMK)</label>
+                                            <input
+                                                type="number"
+                                                value={editableSettings.dataHistoryTierConfig.priceIncrement}
+                                                onChange={e => setEditableSettings(prev => ({ ...prev!, dataHistoryTierConfig: {...prev!.dataHistoryTierConfig, priceIncrement: Number(e.target.value) }}))}
+                                                className="w-full bg-gray-700 border border-gray-600 rounded p-2 text-sm text-white"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-300 mb-1">Number of Tiers</label>
+                                            <input
+                                                type="number"
+                                                value={editableSettings.dataHistoryTierConfig.tierCount}
+                                                onChange={e => setEditableSettings(prev => ({ ...prev!, dataHistoryTierConfig: {...prev!.dataHistoryTierConfig, tierCount: Number(e.target.value) }}))}
+                                                className="w-full bg-gray-700 border border-gray-600 rounded p-2 text-sm text-white"
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="mt-8 pt-6 border-t border-gray-700 text-right">
+                                <button onClick={handleSettingsSave} className="px-6 py-2 text-sm bg-blue-600 hover:bg-blue-700 rounded-md font-semibold">Save All Settings</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div hidden={activeTab !== 'token_analytics'}>
+                        <div className="mb-6">
+                            <h2 className="text-2xl font-bold mb-4">Token Usage Analytics</h2>
+                            <p className="text-gray-400 mb-6">Monitor Gemini API token consumption, track costs, and optimize your pricing strategy.</p>
+                        </div>
+                        <TokenAnalyticsPanel shops={shops} />
+                    </div>
+                </main>
+            </div>
+             {confirmationModalConfig?.isOpen && (
+                <ConfirmationModal
+                    isOpen={true}
+                    onClose={closeConfirmation}
+                    onConfirm={() => {
+                        confirmationModalConfig.onConfirm();
+                        closeConfirmation();
+                    }}
+                    title={confirmationModalConfig.title}
+                    message={confirmationModalConfig.message}
+                    confirmText={confirmationModalConfig.confirmText}
+                    confirmButtonClass={confirmationModalConfig.confirmButtonClass}
+                />
+            )}
+        </>
+    );
+};

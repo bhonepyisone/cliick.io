@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    
+    <!-- Content Security Policy -->
+    <meta http-equiv="Content-Security-Policy" 
+          content="default-src 'self'; 
+                   script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com https://aistudiocdn.com https://*.supabase.co; 
+                   style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.tailwindcss.com; 
+                   font-src 'self' https://fonts.gstatic.com; 
+                   img-src 'self' data: https: blob:; 
+                   connect-src 'self' http://localhost:8080 https://*.supabase.co https://generativelanguage.googleapis.com https://api.cloudinary.com wss://*.supabase.co https://cliick-backend-896324541174.us-central1.run.app https://cliick-backend-ngt5twdwha-uc.a.run.app https://*.vercel.app; 
+                   frame-src 'self'; 
+                   object-src 'none'; 
+                   base-uri 'self';">
+    
+    <!-- Security Headers (X-Frame-Options is set via Vercel headers, not meta tags) -->
+    <meta http-equiv="X-Content-Type-Options" content="nosniff">
+    <meta http-equiv="X-XSS-Protection" content="1; mode=block">
+    <meta name="referrer" content="strict-origin-when-cross-origin">
+    
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3csvg viewBox='0 0 100 100' fill='none' xmlns='http://www.w3.org/2000/svg'%3e%3cdefs%3e%3clinearGradient id='grad' x1='0.5' y1='1' x2='0.5' y2='0'%3e%3cstop offset='0%25' stop-color='%23E64A83'/%3e%3cstop offset='50%25' stop-color='%23B34EAF'/%3e%3cstop offset='100%25' stop-color='%23635BFF'/%3e%3c/linearGradient%3e%3c/defs%3e%3cpath d='M 80.31 32.5 A 35 35 0 1 0 80.31 67.5' stroke='url(%23grad)' stroke-width='20' stroke-linecap='butt'/%3e%3c/svg%3e" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Cliick.io - AI Assistant for Facebook Shops</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Lexend:wght@500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/index.css">
+  <script type="importmap">
+{
+  "imports": {
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
+    "@google/genai": "https://aistudiocdn.com/@google/genai@^1.27.0",
+    "react/": "https://aistudiocdn.com/react@^19.2.0/",
+    "react": "https://aistudiocdn.com/react@^19.2.0",
+    "react-markdown": "https://aistudiocdn.com/react-markdown@^10.1.0",
+    "react-dom": "https://aistudiocdn.com/react-dom@^19.2.0",
+    "@supabase/supabase-js": "https://aistudiocdn.com/@supabase/supabase-js@^2.81.1"
+  }
+}
+</script>
+<style>
+  html {
+    color-scheme: dark;
+  }
+  body {
+    font-family: 'Inter', sans-serif;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Lexend', sans-serif;
+  }
+  input[type="date"]::-webkit-calendar-picker-indicator {
+    filter: invert(1);
+    cursor: pointer;
+  }
+  @keyframes slide-up {
+      from { transform: translateY(100%); }
+      to { transform: translateY(0); }
+  }
+  .animate-slide-up {
+      animation: slide-up 0.3s ease-out forwards;
+  }
+  @keyframes slide-up-fast {
+      from { transform: translateY(10px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+  }
+  .animate-slide-up-fast {
+      animation: slide-up-fast 0.2s ease-out forwards;
+  }
+  @keyframes fade-in-fast {
+      from { opacity: 0; }
+      to { opacity: 1; }
+  }
+  .animate-fade-in-fast {
+      animation: fade-in-fast 0.3s ease-out forwards;
+  }
+  @keyframes slow-fade-in {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes chat-bubble-in-bottom {
+    from { transform: translateY(15px) scale(0.98); opacity: 0; }
+    to { transform: translateY(0) scale(1); opacity: 1; }
+  }
+
+  /* Hide scrollbar for chat animation */
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+  }
+
+  /* --- Receipt Styles --- */
+  .receipt-container.receipt-standard {
+    font-family: 'Inter', sans-serif;
+    width: 420px;
+  }
+  .receipt-container.receipt-80mm {
+    font-family: monospace;
+    width: 80mm;
+    font-size: 10pt;
+  }
+  .receipt-container.receipt-80mm .receipt-header-main { font-size: 14pt; }
+  .receipt-container.receipt-80mm .receipt-header-sub { font-size: 8pt; }
+  .receipt-container.receipt-80mm .receipt-items-table { font-size: 9pt; }
+  .receipt-container.receipt-80mm .receipt-totals { font-size: 10pt; }
+
+  .receipt-container.receipt-58mm {
+    font-family: monospace;
+    width: 58mm;
+    font-size: 8pt;
+  }
+  .receipt-container.receipt-58mm .receipt-header-main { font-size: 11pt; }
+  .receipt-container.receipt-58mm .receipt-header-sub { font-size: 7pt; }
+  .receipt-container.receipt-58mm .receipt-items-table { font-size: 7.5pt; }
+  .receipt-container.receipt-58mm .receipt-totals { font-size: 8pt; }
+  
+  .receipt-container table thead th {
+    color: black;
+    font-weight: 700; /* bold */
+  }
+
+  @media print {
+      body > *:not(.printable-receipt-modal) {
+          display: none !important;
+      }
+      .printable-receipt-modal {
+          position: absolute !important;
+          top: 0 !important;
+          left: 0 !important;
+          width: 100% !important;
+          max-width: 100% !important;
+          height: 100% !important;
+          max-height: none !important;
+          box-shadow: none !important;
+          border: none !important;
+          border-radius: 0 !important;
+          background-color: white !important;
+      }
+      .no-print {
+          display: none !important;
+      }
+      #receipt-content {
+          color: black !important;
+          background-color: white !important;
+          padding: 0 !important;
+          overflow: visible !important;
+          height: auto !important;
+      }
+      .receipt-container {
+        margin: 0 auto;
+      }
+  }
+</style>
+<link rel="stylesheet" href="/index.css">
+</head>
+  <body class="bg-[#0A2540] text-[#F6F9FC]">
+    <script>
+      // Set API base URL at runtime for apiClient
+      // Use localhost:8080 in development, production Cloud Run in production
+      const isDev = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
+      window.__API_BASE_URL__ = isDev 
+        ? 'http://localhost:8080/api'
+        : 'https://cliick-backend-ngt5twdwha-uc.a.run.app/api';
+    </script>
+    <div id="root"></div>
+    <div id="toast-container"></div>
+    <script type="module" src="/index.tsx"></script>
+  </body>
+</html>

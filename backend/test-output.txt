@@ -1,0 +1,1103 @@
+
+> cliick-backend@1.0.0 test
+> vitest --run
+
+The CJS build of Vite's Node API is deprecated. See https://vite.dev/guide/troubleshooting.html#vite-cjs-node-api-deprecated for more details.
+
+[7m[1m[36m RUN [39m[22m[27m [36mv1.6.1[39m [90mC:/cliick.io-(backend-ready)-(nov-18_-2_30pm)/backend[39m
+
+stderr | tests/webhooks.test.ts > Webhook Endpoints > POST /webhook/paypal > should fail with invalid JSON
+Error: SyntaxError: Unexpected token 'i', "invalid json" is not valid JSON
+    at JSON.parse (<anonymous>)
+    at createStrictSyntaxError (C:\cliick.io-(backend-ready)-(nov-18_-2_30pm)\backend\node_modules\body-parser\lib\types\json.js:169:10)
+    at parse (C:\cliick.io-(backend-ready)-(nov-18_-2_30pm)\backend\node_modules\body-parser\lib\types\json.js:86:15)
+    at C:\cliick.io-(backend-ready)-(nov-18_-2_30pm)\backend\node_modules\body-parser\lib\read.js:128:18
+    at AsyncResource.runInAsyncScope (node:async_hooks:214:14)
+    at invokeCallback (C:\cliick.io-(backend-ready)-(nov-18_-2_30pm)\backend\node_modules\raw-body\index.js:238:16)
+    at done (C:\cliick.io-(backend-ready)-(nov-18_-2_30pm)\backend\node_modules\raw-body\index.js:227:7)
+    at IncomingMessage.onEnd (C:\cliick.io-(backend-ready)-(nov-18_-2_30pm)\backend\node_modules\raw-body\index.js:287:7)
+    at IncomingMessage.emit (node:events:508:28)
+    at endReadableNT (node:internal/streams/readable:1701:12) {
+  expose: true,
+  statusCode: 400,
+  status: 400,
+  body: 'invalid json',
+  type: 'entity.parse.failed'
+}
+
+stderr | tests/products.test.ts > Product Endpoints > GET /api/shops/:shopId/products > should list all products
+Error: {
+  message: 'TypeError: fetch failed',
+  details: 'TypeError: fetch failed\n' +
+    '\n' +
+    'Caused by: Error: getaddrinfo ENOTFOUND test-project.supabase.co (ENOTFOUND)\n' +
+    'Error: getaddrinfo ENOTFOUND test-project.supabase.co\n' +
+    '    at GetAddrInfoReqWrap.onlookupall [as oncomplete] (node:dns:122:26)',
+  hint: '',
+  code: ''
+}
+
+stderr | tests/orders.test.ts > Order Endpoints > GET /api/shops/:shopId/orders > should list all orders
+Error: {
+  message: 'TypeError: fetch failed',
+  details: 'TypeError: fetch failed\n' +
+    '\n' +
+    'Caused by: Error: getaddrinfo ENOTFOUND test-project.supabase.co (ENOTFOUND)\n' +
+    'Error: getaddrinfo ENOTFOUND test-project.supabase.co\n' +
+    '    at GetAddrInfoReqWrap.onlookupall [as oncomplete] (node:dns:122:26)',
+  hint: '',
+  code: ''
+}
+
+ [32mΓ£ô[39m tests/webhooks.test.ts [2m ([22m[2m9 tests[22m[2m)[22m[90m 145[2mms[22m[39m
+ [33mΓ¥»[39m tests/notifications.test.ts [2m ([22m[2m13 tests[22m [2m|[22m [31m1 failed[39m[2m)[22m[90m 171[2mms[22m[39m
+[31m   [33mΓ¥»[31m tests/notifications.test.ts[2m > [22mNotification Endpoints[2m > [22mGET /api/notifications/user/:userId[2m > [22mshould support pagination[39m
+[31m     ΓåÆ expected 20 to be 10 // Object.is equality[39m
+ [33mΓ¥»[39m tests/forms.test.ts [2m ([22m[2m7 tests[22m [2m|[22m [31m6 failed[39m[2m)[22m[90m 217[2mms[22m[39m
+[31m   [33mΓ¥»[31m tests/forms.test.ts[2m > [22mForm Endpoints[2m > [22mGET /api/shops/:shopId/forms[2m > [22mshould list all forms[39m
+[31m     ΓåÆ expected 500 to be 200 // Object.is equality[39m
+[31m   [33mΓ¥»[31m tests/forms.test.ts[2m > [22mForm Endpoints[2m > [22mPOST /api/shops/:shopId/forms[2m > [22mshould create a form[39m
+[31m     ΓåÆ expected 403 to be 201 // Object.is equality[39m
+[31m   [33mΓ¥»[31m tests/forms.test.ts[2m > [22mForm Endpoints[2m > [22mPOST /api/shops/:shopId/forms[2m > [22mshould fail without required fields[39m
+[31m     ΓåÆ expected 403 to be 400 // Object.is equality[39m
+[31m   [33mΓ¥»[31m tests/forms.test.ts[2m > [22mForm Endpoints[2m > [22mPUT /api/shops/:shopId/forms/:formId[2m > [22mshould update form[39m
+[31m     ΓåÆ expected 403 to be 200 // Object.is equality[39m
+[31m   [33mΓ¥»[31m tests/forms.test.ts[2m > [22mForm Endpoints[2m > [22mDELETE /api/shops/:shopId/forms/:formId[2m > [22mshould delete form[39m
+[31m     ΓåÆ Cannot read properties of undefined (reading 'id')[39m
+[31m   [33mΓ¥»[31m tests/forms.test.ts[2m > [22mForm Endpoints[2m > [22mPOST /api/shops/:shopId/forms/:formId/submissions[2m > [22mshould submit form[39m
+[31m     ΓåÆ expected 500 to be 201 // Object.is equality[39m
+ [33mΓ¥»[39m tests/payments.test.ts [2m ([22m[2m9 tests[22m [2m|[22m [31m7 failed[39m[2m)[22m[90m 220[2mms[22m[39m
+[31m   [33mΓ¥»[31m tests/payments.test.ts[2m > [22mPayment Endpoints[2m > [22mPOST /api/shops/:shopId/payments/intent[2m > [22mshould create payment intent[39m
+[31m     ΓåÆ expected 403 to be 200 // Object.is equality[39m
+[31m   [33mΓ¥»[31m tests/payments.test.ts[2m > [22mPayment Endpoints[2m > [22mPOST /api/shops/:shopId/payments/intent[2m > [22mshould validate amount[39m
+[31m     ΓåÆ expected 403 to be 400 // Object.is equality[39m
+[31m   [33mΓ¥»[31m tests/payments.test.ts[2m > [22mPayment Endpoints[2m > [22mPOST /api/shops/:shopId/payments/intent[2m > [22mshould require required fields[39m
+[31m     ΓåÆ expected 403 to be 400 // Object.is equality[39m
+[31m   [33mΓ¥»[31m tests/payments.test.ts[2m > [22mPayment Endpoints[2m > [22mPOST /api/shops/:shopId/payments/confirm[2m > [22mshould confirm payment[39m
+[31m     ΓåÆ expected 403 to be 200 // Object.is equality[39m
+[31m   [33mΓ¥»[31m tests/payments.test.ts[2m > [22mPayment Endpoints[2m > [22mPOST /api/shops/:shopId/payments/confirm[2m > [22mshould fail without payment intent id[39m
+[31m     ΓåÆ expected 403 to be 400 // Object.is equality[39m
+[31m   [33mΓ¥»[31m tests/payments.test.ts[2m > [22mPayment Endpoints[2m > [22mGET /api/shops/:shopId/payments/:paymentId[2m > [22mshould return 404 for non-existent payment[39m
+[31m     ΓåÆ expected 200 to be 404 // Object.is equality[39m
+[31m   [33mΓ¥»[31m tests/payments.test.ts[2m > [22mPayment Endpoints[2m > [22mPOST /api/shops/:shopId/payments/:paymentId/refund[2m > [22mshould process refund[39m
+[31m     ΓåÆ expected 403 to be 200 // Object.is equality[39m
+ [33mΓ¥»[39m tests/shops.test.ts [2m ([22m[2m8 tests[22m [2m|[22m [31m5 failed[39m[2m)[22m[90m 216[2mms[22m[39m
+[31m   [33mΓ¥»[31m tests/shops.test.ts[2m > [22mShop Endpoints[2m > [22mPOST /api/shops[2m > [22mshould create a new shop[39m
+[31m     ΓåÆ expected 403 to be 201 // Object.is equality[39m
+[31m   [33mΓ¥»[31m tests/shops.test.ts[2m > [22mShop Endpoints[2m > [22mPOST /api/shops[2m > [22mshould validate required fields[39m
+[31m     ΓåÆ expected 403 to be 400 // Object.is equality[39m
+[31m   [33mΓ¥»[31m tests/shops.test.ts[2m > [22mShop Endpoints[2m > [22mGET /api/shops/:shopId[2m > [22mshould get shop details[39m
+[31m     ΓåÆ expected 404 to be 200 // Object.is equality[39m
+[31m   [33mΓ¥»[31m tests/shops.test.ts[2m > [22mShop Endpoints[2m > [22mPUT /api/shops/:shopId[2m > [22mshould update shop[39m
+[31m     ΓåÆ expected 403 to be 200 // Object.is equality[39m
+[31m   [33mΓ¥»[31m tests/shops.test.ts[2m > [22mShop Endpoints[2m > [22mPUT /api/shops/:shopId[2m > [22mshould fail with invalid data[39m
+[31m     ΓåÆ expected 403 to be 400 // Object.is equality[39m
+ [33mΓ¥»[39m tests/integrations.test.ts [2m ([22m[2m9 tests[22m [2m|[22m [31m4 failed[39m[2m)[22m[90m 208[2mms[22m[39m
+[31m   [33mΓ¥»[31m tests/integrations.test.ts[2m > [22mIntegration Endpoints[2m > [22mPOST /api/shops/:shopId/integrations/:platform/connect[2m > [22mshould connect OAuth provider with code[39m
+[31m     ΓåÆ expected 403 to be 200 // Object.is equality[39m
+[31m   [33mΓ¥»[31m tests/integrations.test.ts[2m > [22mIntegration Endpoints[2m > [22mPOST /api/shops/:shopId/integrations/:platform/connect[2m > [22mshould handle different platforms[39m
+[31m     ΓåÆ expected 403 to be 200 // Object.is equality[39m
+[31m   [33mΓ¥»[31m tests/integrations.test.ts[2m > [22mIntegration Endpoints[2m > [22mPOST /api/shops/:shopId/integrations/:platform/connect[2m > [22mshould require authorization code[39m
+[31m     ΓåÆ expected 403 to be 400 // Object.is equality[39m
+[31m   [33mΓ¥»[31m tests/integrations.test.ts[2m > [22mIntegration Endpoints[2m > [22mPOST /api/shops/:shopId/integrations/:platform/disconnect[2m > [22mshould disconnect OAuth provider[39m
+[31m     ΓåÆ expected 403 to be 200 // Object.is equality[39m
+ [33mΓ¥»[39m tests/conversations.test.ts [2m ([22m[2m9 tests[22m [2m|[22m [31m9 failed[39m[2m)[22m[90m 209[2mms[22m[39m
+[31m   [33mΓ¥»[31m tests/conversations.test.ts[2m > [22mConversation Endpoints[2m > [22mPOST /api/shops/:shopId/conversations[2m > [22mshould create a conversation[39m
+[31m     ΓåÆ expected 403 to be 201 // Object.is equality[39m
+[31m   [33mΓ¥»[31m tests/conversations.test.ts[2m > [22mConversation Endpoints[2m > [22mPOST /api/shops/:shopId/conversations[2m > [22mshould fail without required fields[39m
+[31m     ΓåÆ expected 403 to be 400 // Object.is equality[39m
+[31m   [33mΓ¥»[31m tests/conversations.test.ts[2m > [22mConversation Endpoints[2m > [22mPOST /api/shops/:shopId/conversations[2m > [22mshould validate platform enum[39m
+[31m     ΓåÆ expected 403 to be 400 // Object.is equality[39m
+[31m   [33mΓ¥»[31m tests/conversations.test.ts[2m > [22mConversation Endpoints[2m > [22mGET /api/shops/:shopId/conversations[2m > [22mshould list all conversations[39m
+[31m     ΓåÆ expected 500 to be 200 // Object.is equality[39m
+[31m   [33mΓ¥»[31m tests/conversations.test.ts[2m > [22mConversation Endpoints[2m > [22mGET /api/shops/:shopId/conversations/:conversationId[2m > [22mshould get conversation details[39m
+[31m     ΓåÆ expected 404 to be 200 // Object.is equality[39m
+[31m   [33mΓ¥»[31m tests/conversations.test.ts[2m > [22mConversation Endpoints[2m > [22mPUT /api/shops/:shopId/conversations/:conversationId[2m > [22mshould update conversation[39m
+[31m     ΓåÆ expected 403 to be 200 // Object.is equality[39m
+[31m   [33mΓ¥»[31m tests/conversations.test.ts[2m > [22mConversation Endpoints[2m > [22mPOST /api/shops/:shopId/conversations/:conversationId/messages[2m > [22mshould add message to conversation[39m
+[31m     ΓåÆ expected 403 to be 201 // Object.is equality[39m
+[31m   [33mΓ¥»[31m tests/conversations.test.ts[2m > [22mConversation Endpoints[2m > [22mPOST /api/shops/:shopId/conversations/:conversationId/messages[2m > [22mshould fail with invalid sender[39m
+[31m     ΓåÆ expected 401 to be 400 // Object.is equality[39m
+[31m   [33mΓ¥»[31m tests/conversations.test.ts[2m > [22mConversation Endpoints[2m > [22mPOST /api/shops/:shopId/conversations/:conversationId/messages[2m > [22mshould fail without required fields[39m
+[31m     ΓåÆ expected 401 to be 400 // Object.is equality[39m
+ [33mΓ¥»[39m tests/products.test.ts [2m ([22m[2m8 tests[22m [2m|[22m [31m6 failed[39m[2m)[22m[90m 215[2mms[22m[39m
+[31m   [33mΓ¥»[31m tests/products.test.ts[2m > [22mProduct Endpoints[2m > [22mGET /api/shops/:shopId/products[2m > [22mshould list all products[39m
+[31m     ΓåÆ expected 500 to be 200 // Object.is equality[39m
+[31m   [33mΓ¥»[31m tests/products.test.ts[2m > [22mProduct Endpoints[2m > [22mPOST /api/shops/:shopId/products[2m > [22mshould create a product[39m
+[31m     ΓåÆ expected 403 to be 201 // Object.is equality[39m
+[31m   [33mΓ¥»[31m tests/products.test.ts[2m > [22mProduct Endpoints[2m > [22mPOST /api/shops/:shopId/products[2m > [22mshould fail without required fields[39m
+[31m     ΓåÆ expected 403 to be 400 // Object.is equality[39m
+[31m   [33mΓ¥»[31m tests/products.test.ts[2m > [22mProduct Endpoints[2m > [22mGET /api/shops/:shopId/products/:productId[2m > [22mshould get product details[39m
+[31m     ΓåÆ expected 404 to be 200 // Object.is equality[39m
+[31m   [33mΓ¥»[31m tests/products.test.ts[2m > [22mProduct Endpoints[2m > [22mPUT /api/shops/:shopId/products/:productId[2m > [22mshould update product[39m
+[31m     ΓåÆ expected 403 to be 200 // Object.is equality[39m
+[31m   [33mΓ¥»[31m tests/products.test.ts[2m > [22mProduct Endpoints[2m > [22mDELETE /api/shops/:shopId/products/:productId[2m > [22mshould delete product[39m
+[31m     ΓåÆ expected 403 to be 200 // Object.is equality[39m
+ [33mΓ¥»[39m tests/orders.test.ts [2m ([22m[2m8 tests[22m [2m|[22m [31m6 failed[39m[2m)[22m[90m 212[2mms[22m[39m
+[31m   [33mΓ¥»[31m tests/orders.test.ts[2m > [22mOrder Endpoints[2m > [22mGET /api/shops/:shopId/orders[2m > [22mshould list all orders[39m
+[31m     ΓåÆ expected 500 to be 200 // Object.is equality[39m
+[31m   [33mΓ¥»[31m tests/orders.test.ts[2m > [22mOrder Endpoints[2m > [22mPOST /api/shops/:shopId/orders[2m > [22mshould create an order[39m
+[31m     ΓåÆ expected 403 to be 201 // Object.is equality[39m
+[31m   [33mΓ¥»[31m tests/orders.test.ts[2m > [22mOrder Endpoints[2m > [22mPOST /api/shops/:shopId/orders[2m > [22mshould fail without required fields[39m
+[31m     ΓåÆ expected 403 to be 400 // Object.is equality[39m
+[31m   [33mΓ¥»[31m tests/orders.test.ts[2m > [22mOrder Endpoints[2m > [22mGET /api/shops/:shopId/orders/:orderId[2m > [22mshould get order details[39m
+[31m     ΓåÆ expected 404 to be 200 // Object.is equality[39m
+[31m   [33mΓ¥»[31m tests/orders.test.ts[2m > [22mOrder Endpoints[2m > [22mPUT /api/shops/:shopId/orders/:orderId/status[2m > [22mshould update order status[39m
+[31m     ΓåÆ expected 403 to be 200 // Object.is equality[39m
+[31m   [33mΓ¥»[31m tests/orders.test.ts[2m > [22mOrder Endpoints[2m > [22mPUT /api/shops/:shopId/orders/:orderId[2m > [22mshould update full order[39m
+[31m     ΓåÆ expected 403 to be 200 // Object.is equality[39m
+stderr | tests/auth.test.ts > Authentication Endpoints > POST /api/auth/register > should register a new user
+Registration error: {
+  message: 'TypeError: fetch failed',
+  details: 'TypeError: fetch failed\n' +
+    '\n' +
+    'Caused by: Error: getaddrinfo ENOTFOUND test-project.supabase.co (ENOTFOUND)\n' +
+    'Error: getaddrinfo ENOTFOUND test-project.supabase.co\n' +
+    '    at GetAddrInfoReqWrap.onlookupall [as oncomplete] (node:dns:122:26)',
+  hint: '',
+  code: ''
+}
+
+ [33mΓ¥»[39m tests/auth.test.ts [2m ([22m[2m14 tests[22m [2m|[22m [31m5 failed[39m[2m)[22m[33m 501[2mms[22m[39m
+[31m   [33mΓ¥»[31m tests/auth.test.ts[2m > [22mAuthentication Endpoints[2m > [22mPOST /api/auth/register[2m > [22mshould register a new user[39m
+[31m     ΓåÆ expected 500 to be 201 // Object.is equality[39m
+[31m   [33mΓ¥»[31m tests/auth.test.ts[2m > [22mAuthentication Endpoints[2m > [22mPOST /api/auth/login[2m > [22mshould login with valid credentials[39m
+[31m     ΓåÆ expected 401 to be 200 // Object.is equality[39m
+[31m   [33mΓ¥»[31m tests/auth.test.ts[2m > [22mAuthentication Endpoints[2m > [22mGET /api/auth/me[2m > [22mshould get current user with valid token[39m
+[31m     ΓåÆ expected 403 to be 200 // Object.is equality[39m
+[31m   [33mΓ¥»[31m tests/auth.test.ts[2m > [22mAuthentication Endpoints[2m > [22mPOST /api/auth/refresh[2m > [22mshould refresh token with valid refresh token[39m
+[31m     ΓåÆ expected 400 to be 200 // Object.is equality[39m
+[31m   [33mΓ¥»[31m tests/auth.test.ts[2m > [22mAuthentication Endpoints[2m > [22mPOST /api/auth/logout[2m > [22mshould logout successfully[39m
+[31m     ΓåÆ expected 403 to be 200 // Object.is equality[39m
+
+ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ» Failed Tests 49 ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»
+
+ FAIL  tests/auth.test.ts > Authentication Endpoints > POST /api/auth/register > should register a new user
+AssertionError: expected 500 to be 201 // Object.is equality
+
+- Expected
++ Received
+
+- 201
++ 500
+
+ Γ¥» tests/auth.test.ts:28:31
+     26|         });
+     27| 
+     28|       expect(response.status).toBe(201);
+       |                               ^
+     29|       expect(response.body.success).toBe(true);
+     30|       expect(response.body.data.user).toBeDefined();
+
+ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»[1/49]ΓÄ»
+
+ FAIL  tests/auth.test.ts > Authentication Endpoints > POST /api/auth/login > should login with valid credentials
+AssertionError: expected 401 to be 200 // Object.is equality
+
+- Expected
++ Received
+
+- 200
++ 401
+
+ Γ¥» tests/auth.test.ts:73:31
+     71|         });
+     72| 
+     73|       expect(response.status).toBe(200);
+       |                               ^
+     74|       expect(response.body.success).toBe(true);
+     75|       expect(response.body.data.user).toBeDefined();
+
+ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»[2/49]ΓÄ»
+
+ FAIL  tests/auth.test.ts > Authentication Endpoints > GET /api/auth/me > should get current user with valid token
+AssertionError: expected 403 to be 200 // Object.is equality
+
+- Expected
++ Received
+
+- 200
++ 403
+
+ Γ¥» tests/auth.test.ts:110:31
+    108|         .set('Authorization', `Bearer ${authToken}`);
+    109| 
+    110|       expect(response.status).toBe(200);
+       |                               ^
+    111|       expect(response.body.success).toBe(true);
+    112|       expect(response.body.data.email).toBe('test@example.com');
+
+ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»[3/49]ΓÄ»
+
+ FAIL  tests/auth.test.ts > Authentication Endpoints > POST /api/auth/refresh > should refresh token with valid refresh token
+AssertionError: expected 400 to be 200 // Object.is equality
+
+- Expected
++ Received
+
+- 200
++ 400
+
+ Γ¥» tests/auth.test.ts:139:31
+    137|         .send({ refreshToken });
+    138| 
+    139|       expect(response.status).toBe(200);
+       |                               ^
+    140|       expect(response.body.success).toBe(true);
+    141|       expect(response.body.data.token).toBeDefined();
+
+ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»[4/49]ΓÄ»
+
+ FAIL  tests/auth.test.ts > Authentication Endpoints > POST /api/auth/logout > should logout successfully
+AssertionError: expected 403 to be 200 // Object.is equality
+
+- Expected
++ Received
+
+- 200
++ 403
+
+ Γ¥» tests/auth.test.ts:169:31
+    167|         .set('Authorization', `Bearer ${authToken}`);
+    168| 
+    169|       expect(response.status).toBe(200);
+       |                               ^
+    170|       expect(response.body.success).toBe(true);
+    171|     });
+
+ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»[5/49]ΓÄ»
+
+ FAIL  tests/conversations.test.ts > Conversation Endpoints > POST /api/shops/:shopId/conversations > should create a conversation
+AssertionError: expected 403 to be 201 // Object.is equality
+
+- Expected
++ Received
+
+- 201
++ 403
+
+ Γ¥» tests/conversations.test.ts:51:31
+     49|         });
+     50| 
+     51|       expect(response.status).toBe(201);
+       |                               ^
+     52|       expect(response.body.success).toBe(true);
+     53|       expect(response.body.data.customer_name).toBe('John Doe');
+
+ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»[6/49]ΓÄ»
+
+ FAIL  tests/conversations.test.ts > Conversation Endpoints > POST /api/shops/:shopId/conversations > should fail without required fields
+AssertionError: expected 403 to be 400 // Object.is equality
+
+- Expected
++ Received
+
+- 400
++ 403
+
+ Γ¥» tests/conversations.test.ts:68:31
+     66|         });
+     67| 
+     68|       expect(response.status).toBe(400);
+       |                               ^
+     69|       expect(response.body.success).toBe(false);
+     70|     });
+
+ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»[7/49]ΓÄ»
+
+ FAIL  tests/conversations.test.ts > Conversation Endpoints > POST /api/shops/:shopId/conversations > should validate platform enum
+AssertionError: expected 403 to be 400 // Object.is equality
+
+- Expected
++ Received
+
+- 400
++ 403
+
+ Γ¥» tests/conversations.test.ts:81:31
+     79|         });
+     80| 
+     81|       expect(response.status).toBe(400);
+       |                               ^
+     82|       expect(response.body.success).toBe(false);
+     83|     });
+
+ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»[8/49]ΓÄ»
+
+ FAIL  tests/conversations.test.ts > Conversation Endpoints > GET /api/shops/:shopId/conversations > should list all conversations
+AssertionError: expected 500 to be 200 // Object.is equality
+
+- Expected
++ Received
+
+- 200
++ 500
+
+ Γ¥» tests/conversations.test.ts:91:31
+     89|         .get(`/api/shops/${shopId}/conversations`);
+     90| 
+     91|       expect(response.status).toBe(200);
+       |                               ^
+     92|       expect(response.body.success).toBe(true);
+     93|       expect(Array.isArray(response.body.data)).toBe(true);
+
+ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»[9/49]ΓÄ»
+
+ FAIL  tests/conversations.test.ts > Conversation Endpoints > GET /api/shops/:shopId/conversations/:conversationId > should get conversation details
+AssertionError: expected 404 to be 200 // Object.is equality
+
+- Expected
++ Received
+
+- 200
++ 404
+
+ Γ¥» tests/conversations.test.ts:102:31
+    100|         .get(`/api/shops/${shopId}/conversations/${conversationId}`);
+    101| 
+    102|       expect(response.status).toBe(200);
+       |                               ^
+    103|       expect(response.body.success).toBe(true);
+    104|       expect(response.body.data.id).toBe(conversationId);
+
+ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»[10/49]ΓÄ»
+
+ FAIL  tests/conversations.test.ts > Conversation Endpoints > PUT /api/shops/:shopId/conversations/:conversationId > should update conversation
+AssertionError: expected 403 to be 200 // Object.is equality
+
+- Expected
++ Received
+
+- 200
++ 403
+
+ Γ¥» tests/conversations.test.ts:117:31
+    115|         });
+    116| 
+    117|       expect(response.status).toBe(200);
+       |                               ^
+    118|       expect(response.body.success).toBe(true);
+    119|       expect(response.body.data.status).toBe('closed');
+
+ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»[11/49]ΓÄ»
+
+ FAIL  tests/conversations.test.ts > Conversation Endpoints > POST /api/shops/:shopId/conversations/:conversationId/messages > should add message to conversation
+AssertionError: expected 403 to be 201 // Object.is equality
+
+- Expected
++ Received
+
+- 201
++ 403
+
+ Γ¥» tests/conversations.test.ts:134:31
+    132|         });
+    133| 
+    134|       expect(response.status).toBe(201);
+       |                               ^
+    135|       expect(response.body.success).toBe(true);
+    136|       expect(response.body.data.text).toBe('Hello, how can I help?');
+
+ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»[12/49]ΓÄ»
+
+ FAIL  tests/conversations.test.ts > Conversation Endpoints > POST /api/shops/:shopId/conversations/:conversationId/messages > should fail with invalid sender
+AssertionError: expected 401 to be 400 // Object.is equality
+
+- Expected
++ Received
+
+- 400
++ 401
+
+ Γ¥» tests/conversations.test.ts:148:31
+    146|         });
+    147| 
+    148|       expect(response.status).toBe(400);
+       |                               ^
+    149|       expect(response.body.success).toBe(false);
+    150|     });
+
+ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»[13/49]ΓÄ»
+
+ FAIL  tests/conversations.test.ts > Conversation Endpoints > POST /api/shops/:shopId/conversations/:conversationId/messages > should fail without required fields
+AssertionError: expected 401 to be 400 // Object.is equality
+
+- Expected
++ Received
+
+- 400
++ 401
+
+ Γ¥» tests/conversations.test.ts:159:31
+    157|         });
+    158| 
+    159|       expect(response.status).toBe(400);
+       |                               ^
+    160|       expect(response.body.success).toBe(false);
+    161|     });
+
+ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»[14/49]ΓÄ»
+
+ FAIL  tests/forms.test.ts > Form Endpoints > GET /api/shops/:shopId/forms > should list all forms
+AssertionError: expected 500 to be 200 // Object.is equality
+
+- Expected
++ Received
+
+- 200
++ 500
+
+ Γ¥» tests/forms.test.ts:45:31
+     43|         .get(`/api/shops/${shopId}/forms`);
+     44| 
+     45|       expect(response.status).toBe(200);
+       |                               ^
+     46|       expect(response.body.success).toBe(true);
+     47|       expect(Array.isArray(response.body.data)).toBe(true);
+
+ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»[15/49]ΓÄ»
+
+ FAIL  tests/forms.test.ts > Form Endpoints > POST /api/shops/:shopId/forms > should create a form
+AssertionError: expected 403 to be 201 // Object.is equality
+
+- Expected
++ Received
+
+- 201
++ 403
+
+ Γ¥» tests/forms.test.ts:74:31
+     72|         });
+     73| 
+     74|       expect(response.status).toBe(201);
+       |                               ^
+     75|       expect(response.body.success).toBe(true);
+     76|       expect(response.body.data.name).toBe('Order Form');
+
+ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»[16/49]ΓÄ»
+
+ FAIL  tests/forms.test.ts > Form Endpoints > POST /api/shops/:shopId/forms > should fail without required fields
+AssertionError: expected 403 to be 400 // Object.is equality
+
+- Expected
++ Received
+
+- 400
++ 403
+
+ Γ¥» tests/forms.test.ts:90:31
+     88|         });
+     89| 
+     90|       expect(response.status).toBe(400);
+       |                               ^
+     91|       expect(response.body.success).toBe(false);
+     92|     });
+
+ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»[17/49]ΓÄ»
+
+ FAIL  tests/forms.test.ts > Form Endpoints > PUT /api/shops/:shopId/forms/:formId > should update form
+AssertionError: expected 403 to be 200 // Object.is equality
+
+- Expected
++ Received
+
+- 200
++ 403
+
+ Γ¥» tests/forms.test.ts:112:31
+    110|         });
+    111| 
+    112|       expect(response.status).toBe(200);
+       |                               ^
+    113|       expect(response.body.success).toBe(true);
+    114|       expect(response.body.data.name).toBe('Updated Order Form');
+
+ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»[18/49]ΓÄ»
+
+ FAIL  tests/forms.test.ts > Form Endpoints > DELETE /api/shops/:shopId/forms/:formId > should delete form
+TypeError: Cannot read properties of undefined (reading 'id')
+ Γ¥» tests/forms.test.ts:129:55
+    127|         });
+    128| 
+    129|       const formToDeleteId = createResponse.body.data.id;
+       |                                                       ^
+    130| 
+    131|       const deleteResponse = await request(app)
+
+ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»[19/49]ΓÄ»
+
+ FAIL  tests/forms.test.ts > Form Endpoints > POST /api/shops/:shopId/forms/:formId/submissions > should submit form
+AssertionError: expected 500 to be 201 // Object.is equality
+
+- Expected
++ Received
+
+- 201
++ 500
+
+ Γ¥» tests/forms.test.ts:158:31
+    156|         });
+    157| 
+    158|       expect(response.status).toBe(201);
+       |                               ^
+    159|       expect(response.body.success).toBe(true);
+    160|       expect(response.body.data.form_id).toBe(formId);
+
+ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»[20/49]ΓÄ»
+
+ FAIL  tests/integrations.test.ts > Integration Endpoints > POST /api/shops/:shopId/integrations/:platform/connect > should connect OAuth provider with code
+AssertionError: expected 403 to be 200 // Object.is equality
+
+- Expected
++ Received
+
+- 200
++ 403
+
+ Γ¥» tests/integrations.test.ts:79:31
+     77|         });
+     78| 
+     79|       expect(response.status).toBe(200);
+       |                               ^
+     80|       expect(response.body.success).toBe(true);
+     81|       expect(response.body.data.platform).toBe('facebook');
+
+ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»[21/49]ΓÄ»
+
+ FAIL  tests/integrations.test.ts > Integration Endpoints > POST /api/shops/:shopId/integrations/:platform/connect > should handle different platforms
+AssertionError: expected 403 to be 200 // Object.is equality
+
+- Expected
++ Received
+
+- 200
++ 403
+
+ Γ¥» tests/integrations.test.ts:96:33
+     94|           });
+     95| 
+     96|         expect(response.status).toBe(200);
+       |                                 ^
+     97|         expect(response.body.success).toBe(true);
+     98|         expect(response.body.data.platform).toBe(platform);
+
+ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»[22/49]ΓÄ»
+
+ FAIL  tests/integrations.test.ts > Integration Endpoints > POST /api/shops/:shopId/integrations/:platform/connect > should require authorization code
+AssertionError: expected 403 to be 400 // Object.is equality
+
+- Expected
++ Received
+
+- 400
++ 403
+
+ Γ¥» tests/integrations.test.ts:119:31
+    117|         .send({});
+    118| 
+    119|       expect(response.status).toBe(400);
+       |                               ^
+    120|       expect(response.body.success).toBe(false);
+    121|     });
+
+ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»[23/49]ΓÄ»
+
+ FAIL  tests/integrations.test.ts > Integration Endpoints > POST /api/shops/:shopId/integrations/:platform/disconnect > should disconnect OAuth provider
+AssertionError: expected 403 to be 200 // Object.is equality
+
+- Expected
++ Received
+
+- 200
++ 403
+
+ Γ¥» tests/integrations.test.ts:130:31
+    128|         .set('Authorization', `Bearer ${authToken}`);
+    129| 
+    130|       expect(response.status).toBe(200);
+       |                               ^
+    131|       expect(response.body.success).toBe(true);
+    132|       expect(response.body.data.platform).toBe('facebook');
+
+ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»[24/49]ΓÄ»
+
+ FAIL  tests/notifications.test.ts > Notification Endpoints > GET /api/notifications/user/:userId > should support pagination
+AssertionError: expected 20 to be 10 // Object.is equality
+
+- Expected
++ Received
+
+- 10
++ 20
+
+ Γ¥» tests/notifications.test.ts:167:46
+    165| 
+    166|       expect(response.status).toBe(200);
+    167|       expect(response.body.pagination.limit).toBe(10);
+       |                                              ^
+    168|       expect(response.body.pagination.offset).toBe(0);
+    169|     });
+
+ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»[25/49]ΓÄ»
+
+ FAIL  tests/orders.test.ts > Order Endpoints > GET /api/shops/:shopId/orders > should list all orders
+AssertionError: expected 500 to be 200 // Object.is equality
+
+- Expected
++ Received
+
+- 200
++ 500
+
+ Γ¥» tests/orders.test.ts:45:31
+     43|         .get(`/api/shops/${shopId}/orders`);
+     44| 
+     45|       expect(response.status).toBe(200);
+       |                               ^
+     46|       expect(response.body.success).toBe(true);
+     47|       expect(Array.isArray(response.body.data)).toBe(true);
+
+ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»[26/49]ΓÄ»
+
+ FAIL  tests/orders.test.ts > Order Endpoints > POST /api/shops/:shopId/orders > should create an order
+AssertionError: expected 403 to be 201 // Object.is equality
+
+- Expected
++ Received
+
+- 201
++ 403
+
+ Γ¥» tests/orders.test.ts:71:31
+     69|         });
+     70| 
+     71|       expect(response.status).toBe(201);
+       |                               ^
+     72|       expect(response.body.success).toBe(true);
+     73|       expect(response.body.data.status).toBe('pending');
+
+ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»[27/49]ΓÄ»
+
+ FAIL  tests/orders.test.ts > Order Endpoints > POST /api/shops/:shopId/orders > should fail without required fields
+AssertionError: expected 403 to be 400 // Object.is equality
+
+- Expected
++ Received
+
+- 400
++ 403
+
+ Γ¥» tests/orders.test.ts:87:31
+     85|         });
+     86| 
+     87|       expect(response.status).toBe(400);
+       |                               ^
+     88|       expect(response.body.success).toBe(false);
+     89|     });
+
+ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»[28/49]ΓÄ»
+
+ FAIL  tests/orders.test.ts > Order Endpoints > GET /api/shops/:shopId/orders/:orderId > should get order details
+AssertionError: expected 404 to be 200 // Object.is equality
+
+- Expected
++ Received
+
+- 200
++ 404
+
+ Γ¥» tests/orders.test.ts:97:31
+     95|         .get(`/api/shops/${shopId}/orders/${orderId}`);
+     96| 
+     97|       expect(response.status).toBe(200);
+       |                               ^
+     98|       expect(response.body.success).toBe(true);
+     99|       expect(response.body.data.id).toBe(orderId);
+
+ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»[29/49]ΓÄ»
+
+ FAIL  tests/orders.test.ts > Order Endpoints > PUT /api/shops/:shopId/orders/:orderId/status > should update order status
+AssertionError: expected 403 to be 200 // Object.is equality
+
+- Expected
++ Received
+
+- 200
++ 403
+
+ Γ¥» tests/orders.test.ts:120:31
+    118|         });
+    119| 
+    120|       expect(response.status).toBe(200);
+       |                               ^
+    121|       expect(response.body.success).toBe(true);
+    122|       expect(response.body.data.status).toBe('confirmed');
+
+ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»[30/49]ΓÄ»
+
+ FAIL  tests/orders.test.ts > Order Endpoints > PUT /api/shops/:shopId/orders/:orderId > should update full order
+AssertionError: expected 403 to be 200 // Object.is equality
+
+- Expected
++ Received
+
+- 200
++ 403
+
+ Γ¥» tests/orders.test.ts:156:31
+    154|         });
+    155| 
+    156|       expect(response.status).toBe(200);
+       |                               ^
+    157|       expect(response.body.success).toBe(true);
+    158|     });
+
+ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»[31/49]ΓÄ»
+
+ FAIL  tests/payments.test.ts > Payment Endpoints > POST /api/shops/:shopId/payments/intent > should create payment intent
+AssertionError: expected 403 to be 200 // Object.is equality
+
+- Expected
++ Received
+
+- 200
++ 403
+
+ Γ¥» tests/payments.test.ts:50:31
+     48|         });
+     49| 
+     50|       expect(response.status).toBe(200);
+       |                               ^
+     51|       expect(response.body.success).toBe(true);
+     52|       expect(response.body.data.clientSecret).toBeDefined();
+
+ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»[32/49]ΓÄ»
+
+ FAIL  tests/payments.test.ts > Payment Endpoints > POST /api/shops/:shopId/payments/intent > should validate amount
+AssertionError: expected 403 to be 400 // Object.is equality
+
+- Expected
++ Received
+
+- 400
++ 403
+
+ Γ¥» tests/payments.test.ts:67:31
+     65|         });
+     66| 
+     67|       expect(response.status).toBe(400);
+       |                               ^
+     68|       expect(response.body.success).toBe(false);
+     69|     });
+
+ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»[33/49]ΓÄ»
+
+ FAIL  tests/payments.test.ts > Payment Endpoints > POST /api/shops/:shopId/payments/intent > should require required fields
+AssertionError: expected 403 to be 400 // Object.is equality
+
+- Expected
++ Received
+
+- 400
++ 403
+
+ Γ¥» tests/payments.test.ts:80:31
+     78|         });
+     79| 
+     80|       expect(response.status).toBe(400);
+       |                               ^
+     81|       expect(response.body.success).toBe(false);
+     82|     });
+
+ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»[34/49]ΓÄ»
+
+ FAIL  tests/payments.test.ts > Payment Endpoints > POST /api/shops/:shopId/payments/confirm > should confirm payment
+AssertionError: expected 403 to be 200 // Object.is equality
+
+- Expected
++ Received
+
+- 200
++ 403
+
+ Γ¥» tests/payments.test.ts:94:31
+     92|         });
+     93| 
+     94|       expect(response.status).toBe(200);
+       |                               ^
+     95|       expect(response.body.success).toBe(true);
+     96|       expect(response.body.data.status).toBe('succeeded');
+
+ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»[35/49]ΓÄ»
+
+ FAIL  tests/payments.test.ts > Payment Endpoints > POST /api/shops/:shopId/payments/confirm > should fail without payment intent id
+AssertionError: expected 403 to be 400 // Object.is equality
+
+- Expected
++ Received
+
+- 400
++ 403
+
+ Γ¥» tests/payments.test.ts:105:31
+    103|         .send({});
+    104| 
+    105|       expect(response.status).toBe(400);
+       |                               ^
+    106|       expect(response.body.success).toBe(false);
+    107|     });
+
+ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»[36/49]ΓÄ»
+
+ FAIL  tests/payments.test.ts > Payment Endpoints > GET /api/shops/:shopId/payments/:paymentId > should return 404 for non-existent payment
+AssertionError: expected 200 to be 404 // Object.is equality
+
+- Expected
++ Received
+
+- 404
++ 200
+
+ Γ¥» tests/payments.test.ts:124:31
+    122|         .get(`/api/shops/${shopId}/payments/nonexistent`);
+    123| 
+    124|       expect(response.status).toBe(404);
+       |                               ^
+    125|       expect(response.body.success).toBe(false);
+    126|     });
+
+ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»[37/49]ΓÄ»
+
+ FAIL  tests/payments.test.ts > Payment Endpoints > POST /api/shops/:shopId/payments/:paymentId/refund > should process refund
+AssertionError: expected 403 to be 200 // Object.is equality
+
+- Expected
++ Received
+
+- 200
++ 403
+
+ Γ¥» tests/payments.test.ts:139:31
+    137|         });
+    138| 
+    139|       expect(response.status).toBe(200);
+       |                               ^
+    140|       expect(response.body.success).toBe(true);
+    141|       expect(response.body.data.status).toBe('succeeded');
+
+ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»[38/49]ΓÄ»
+
+ FAIL  tests/products.test.ts > Product Endpoints > GET /api/shops/:shopId/products > should list all products
+AssertionError: expected 500 to be 200 // Object.is equality
+
+- Expected
++ Received
+
+- 200
++ 500
+
+ Γ¥» tests/products.test.ts:45:31
+     43|         .get(`/api/shops/${shopId}/products`);
+     44| 
+     45|       expect(response.status).toBe(200);
+       |                               ^
+     46|       expect(response.body.success).toBe(true);
+     47|       expect(Array.isArray(response.body.data)).toBe(true);
+
+ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»[39/49]ΓÄ»
+
+ FAIL  tests/products.test.ts > Product Endpoints > POST /api/shops/:shopId/products > should create a product
+AssertionError: expected 403 to be 201 // Object.is equality
+
+- Expected
++ Received
+
+- 201
++ 403
+
+ Γ¥» tests/products.test.ts:64:31
+     62|         });
+     63| 
+     64|       expect(response.status).toBe(201);
+       |                               ^
+     65|       expect(response.body.success).toBe(true);
+     66|       expect(response.body.data.name).toBe('Test Product');
+
+ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»[40/49]ΓÄ»
+
+ FAIL  tests/products.test.ts > Product Endpoints > POST /api/shops/:shopId/products > should fail without required fields
+AssertionError: expected 403 to be 400 // Object.is equality
+
+- Expected
++ Received
+
+- 400
++ 403
+
+ Γ¥» tests/products.test.ts:81:31
+     79|         });
+     80| 
+     81|       expect(response.status).toBe(400);
+       |                               ^
+     82|       expect(response.body.success).toBe(false);
+     83|     });
+
+ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»[41/49]ΓÄ»
+
+ FAIL  tests/products.test.ts > Product Endpoints > GET /api/shops/:shopId/products/:productId > should get product details
+AssertionError: expected 404 to be 200 // Object.is equality
+
+- Expected
++ Received
+
+- 200
++ 404
+
+ Γ¥» tests/products.test.ts:91:31
+     89|         .get(`/api/shops/${shopId}/products/${productId}`);
+     90| 
+     91|       expect(response.status).toBe(200);
+       |                               ^
+     92|       expect(response.body.success).toBe(true);
+     93|       expect(response.body.data.id).toBe(productId);
+
+ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»[42/49]ΓÄ»
+
+ FAIL  tests/products.test.ts > Product Endpoints > PUT /api/shops/:shopId/products/:productId > should update product
+AssertionError: expected 403 to be 200 // Object.is equality
+
+- Expected
++ Received
+
+- 200
++ 403
+
+ Γ¥» tests/products.test.ts:116:31
+    114|         });
+    115| 
+    116|       expect(response.status).toBe(200);
+       |                               ^
+    117|       expect(response.body.success).toBe(true);
+    118|       expect(response.body.data.name).toBe('Updated Product');
+
+ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»[43/49]ΓÄ»
+
+ FAIL  tests/products.test.ts > Product Endpoints > DELETE /api/shops/:shopId/products/:productId > should delete product
+AssertionError: expected 403 to be 200 // Object.is equality
+
+- Expected
++ Received
+
+- 200
++ 403
+
+ Γ¥» tests/products.test.ts:129:31
+    127|         .set('Authorization', `Bearer ${authToken}`);
+    128| 
+    129|       expect(response.status).toBe(200);
+       |                               ^
+    130|       expect(response.body.success).toBe(true);
+    131|     });
+
+ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»[44/49]ΓÄ»
+
+ FAIL  tests/shops.test.ts > Shop Endpoints > POST /api/shops > should create a new shop
+AssertionError: expected 403 to be 201 // Object.is equality
+
+- Expected
++ Received
+
+- 201
++ 403
+
+ Γ¥» tests/shops.test.ts:41:31
+     39|         });
+     40| 
+     41|       expect(response.status).toBe(201);
+       |                               ^
+     42|       expect(response.body.success).toBe(true);
+     43|       expect(response.body.data.name).toBe('Test Shop');
+
+ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»[45/49]ΓÄ»
+
+ FAIL  tests/shops.test.ts > Shop Endpoints > POST /api/shops > should validate required fields
+AssertionError: expected 403 to be 400 // Object.is equality
+
+- Expected
++ Received
+
+- 400
++ 403
+
+ Γ¥» tests/shops.test.ts:69:31
+     67|         });
+     68| 
+     69|       expect(response.status).toBe(400);
+       |                               ^
+     70|       expect(response.body.success).toBe(false);
+     71|     });
+
+ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»[46/49]ΓÄ»
+
+ FAIL  tests/shops.test.ts > Shop Endpoints > GET /api/shops/:shopId > should get shop details
+AssertionError: expected 404 to be 200 // Object.is equality
+
+- Expected
++ Received
+
+- 200
++ 404
+
+ Γ¥» tests/shops.test.ts:79:31
+     77|         .get(`/api/shops/${shopId}`);
+     78| 
+     79|       expect(response.status).toBe(200);
+       |                               ^
+     80|       expect(response.body.success).toBe(true);
+     81|       expect(response.body.data.id).toBe(shopId);
+
+ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»[47/49]ΓÄ»
+
+ FAIL  tests/shops.test.ts > Shop Endpoints > PUT /api/shops/:shopId > should update shop
+AssertionError: expected 403 to be 200 // Object.is equality
+
+- Expected
++ Received
+
+- 200
++ 403
+
+ Γ¥» tests/shops.test.ts:104:31
+    102|         });
+    103| 
+    104|       expect(response.status).toBe(200);
+       |                               ^
+    105|       expect(response.body.success).toBe(true);
+    106|       expect(response.body.data.name).toBe('Updated Shop Name');
+
+ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»[48/49]ΓÄ»
+
+ FAIL  tests/shops.test.ts > Shop Endpoints > PUT /api/shops/:shopId > should fail with invalid data
+AssertionError: expected 403 to be 400 // Object.is equality
+
+- Expected
++ Received
+
+- 400
++ 403
+
+ Γ¥» tests/shops.test.ts:128:31
+    126|         });
+    127| 
+    128|       expect(response.status).toBe(400);
+       |                               ^
+    129|       expect(response.body.success).toBe(false);
+    130|     });
+
+ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»[49/49]ΓÄ»
+
+[2m Test Files [22m [1m[31m9 failed[39m[22m[2m | [22m[1m[32m1 passed[39m[22m[90m (10)[39m
+[2m      Tests [22m [1m[31m49 failed[39m[22m[2m | [22m[1m[32m45 passed[39m[22m[90m (94)[39m
+[2m   Start at [22m 15:56:13
+[2m   Duration [22m 2.39s[2m (transform 640ms, setup 504ms, collect 11.51s, tests 2.31s, environment 4ms, prepare 3.65s)[22m
+
