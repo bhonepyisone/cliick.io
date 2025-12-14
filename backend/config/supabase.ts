@@ -29,8 +29,19 @@ if (process.env.NODE_ENV === 'test') {
       delete: () => ({ eq: () => ({ async: async () => ({ error: null }) }) }),
     })
   };
-} else {
+} else if (supabaseUrl && supabaseServiceRoleKey) {
   supabase = createClient(supabaseUrl, supabaseServiceRoleKey);
+} else {
+  // In development or if env vars not set, create a stub that logs errors
+  console.warn('⚠️  WARNING: SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY not configured');
+  supabase = {
+    from: () => ({
+      select: () => ({ eq: () => ({ single: async () => ({ data: null, error: new Error('Supabase not configured') }) }) }),
+      insert: () => ({ select: () => ({ single: async () => ({ data: null, error: new Error('Supabase not configured') }) }) }),
+      update: () => ({ eq: () => ({ select: () => ({ single: async () => ({ data: null, error: new Error('Supabase not configured') }) }) }) }),
+      delete: () => ({ eq: () => ({ async: async () => ({ error: new Error('Supabase not configured') }) }) }),
+    })
+  };
 }
 
 export { supabase, createSupabaseClient };
