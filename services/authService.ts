@@ -167,7 +167,7 @@ export const login = async (email: string, password: string): Promise<boolean> =
 export const loginWithFacebook = async (): Promise<{ success: boolean; message?: string }> => {
     try {
         // Redirect to backend OAuth endpoint
-        window.location.href = `${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api'}/auth/facebook?redirect=${encodeURIComponent(window.location.origin + '/auth/callback')}`;
+        window.location.href = `${import.meta.env.VITE_API_BASE_URL || 'https://cliick-backend-ngt5twdwha-uc.a.run.app/api'}/auth/facebook?redirect=${encodeURIComponent(window.location.origin + '/auth/callback')}`;
         return { success: true };
     } catch (error: any) {
         return { success: false, message: error.message || 'Facebook login failed' };
@@ -177,7 +177,7 @@ export const loginWithFacebook = async (): Promise<{ success: boolean; message?:
 export const loginWithGoogle = async (): Promise<{ success: boolean; message?: string }> => {
     try {
         // Redirect to backend OAuth endpoint
-        window.location.href = `${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api'}/auth/google?redirect=${encodeURIComponent(window.location.origin + '/auth/callback')}`;
+        window.location.href = `${import.meta.env.VITE_API_BASE_URL || 'https://cliick-backend-ngt5twdwha-uc.a.run.app/api'}/auth/google?redirect=${encodeURIComponent(window.location.origin + '/auth/callback')}`;
         return { success: true };
     } catch (error: any) {
         return { success: false, message: error.message || 'Google login failed' };
@@ -192,7 +192,7 @@ async function ensureProfileExists(): Promise<boolean> {
             return false;
         }
         
-        const response = await fetch(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api'}/auth/ensure-profile`, {
+        const response = await fetch(`${import.meta.env.VITE_API_BASE_URL || 'https://cliick-backend-ngt5twdwha-uc.a.run.app/api'}/auth/ensure-profile`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -259,7 +259,7 @@ export const signup = async (email: string, password: string, username?: string)
         }
         
         // Call backend register endpoint
-        const response = await fetch(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api'}/auth/register`, {
+        const response = await fetch(`${import.meta.env.VITE_API_BASE_URL || 'https://cliick-backend-ngt5twdwha-uc.a.run.app/api'}/auth/register`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -315,7 +315,7 @@ export const logout = async (): Promise<void> => {
 export const getAllUsers = async (): Promise<User[]> => {
     try {
         // Fetch all users endpoint (admin only - requires backend implementation)
-        const response = await fetch(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api'}/auth/users`, {
+        const response = await fetch(`${import.meta.env.VITE_API_BASE_URL || 'https://cliick-backend-ngt5twdwha-uc.a.run.app/api'}/auth/users`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
@@ -338,7 +338,7 @@ export const getAllUsers = async (): Promise<User[]> => {
 
 export const getUserByUsername = async (username: string): Promise<User | null> => {
     try {
-        const response = await fetch(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api'}/auth/users/${encodeURIComponent(username)}`, {
+        const response = await fetch(`${import.meta.env.VITE_API_BASE_URL || 'https://cliick-backend-ngt5twdwha-uc.a.run.app/api'}/auth/users/${encodeURIComponent(username)}`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
@@ -363,7 +363,7 @@ export const updateUser = async (
     updates: Partial<Pick<User, 'username' | 'passwordHash' | 'avatarUrl'>>
 ): Promise<{ success: boolean; user?: User; message?: string }> => {
     try {
-        const response = await fetch(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api'}/auth/users/${userId}`, {
+        const response = await fetch(`${import.meta.env.VITE_API_BASE_URL || 'https://cliick-backend-ngt5twdwha-uc.a.run.app/api'}/auth/users/${userId}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',

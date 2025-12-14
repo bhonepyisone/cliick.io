@@ -18,7 +18,7 @@ function getApiBaseUrl(): string {
         return import.meta.env.VITE_API_BASE_URL;
     }
     // Production fallback
-    return 'https://cliick-backend-896324541174.us-central1.run.app/api';
+    return 'https://cliick-backend-ngt5twdwha-uc.a.run.app/api';
 }
 
 const API_BASE_URL = getApiBaseUrl();
