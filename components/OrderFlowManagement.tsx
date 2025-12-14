@@ -102,6 +102,10 @@ const OrderFlowManagement: React.FC<OrderFlowManagementProps> = ({ orderConfig, 
     const [selectedNode, setSelectedNode] = useState<string | null>(null);
     const [activeFlow, setActiveFlow] = useState<'order' | 'booking'>('order');
 
+    // Handle null/undefined configs gracefully
+    const safeOrderConfig = orderConfig || { enabled: false, strings: {} as any };
+    const safeBookingConfig = bookingConfig || { enabled: false, strings: {} as any };
+
     const triggerSave = (changeFn: () => void) => {
         setSaveStatus('saving');
         if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current);
@@ -121,9 +125,9 @@ const OrderFlowManagement: React.FC<OrderFlowManagementProps> = ({ orderConfig, 
     const handleOrderStringChange = (key: string, value: string) => {
         triggerSave(() => {
             onOrderConfigChange({
-                ...orderConfig,
+                ...safeOrderConfig,
                 strings: {
-                    ...orderConfig.strings,
+                    ...safeOrderConfig.strings,
                     [key]: value
                 }
             });
@@ -131,15 +135,15 @@ const OrderFlowManagement: React.FC<OrderFlowManagementProps> = ({ orderConfig, 
     };
     
     const handleOrderToggle = (enabled: boolean) => {
-        triggerSave(() => onOrderConfigChange({ ...orderConfig, enabled }));
+        triggerSave(() => onOrderConfigChange({ ...safeOrderConfig, enabled }));
     };
     
     const handleBookingStringChange = (key: string, value: string) => {
         triggerSave(() => {
             onBookingConfigChange({
-                ...bookingConfig,
+                ...safeBookingConfig,
                 strings: {
-                    ...bookingConfig.strings,
+                    ...safeBookingConfig.strings,
                     [key]: value
                 }
             });
@@ -147,11 +151,11 @@ const OrderFlowManagement: React.FC<OrderFlowManagementProps> = ({ orderConfig, 
     };
     
     const handleBookingToggle = (enabled: boolean) => {
-        triggerSave(() => onBookingConfigChange({ ...bookingConfig, enabled }));
+        triggerSave(() => onBookingConfigChange({ ...safeBookingConfig, enabled }));
     };
 
-    const orderFieldKeys = Object.keys(orderConfig.strings);
-    const bookingFieldKeys = Object.keys(bookingConfig.strings);
+    const orderFieldKeys = Object.keys(safeOrderConfig.strings);
+    const bookingFieldKeys = Object.keys(safeBookingConfig.strings);
 
     // Define Order Flow Structure
     const orderFlowNodes: FlowNode[] = [
@@ -195,7 +199,7 @@ const OrderFlowManagement: React.FC<OrderFlowManagementProps> = ({ orderConfig, 
 
     const FlowNodeComponent: React.FC<{ node: FlowNode; isActive: boolean; isOrder: boolean }> = ({ node, isActive, isOrder }) => {
         const colors = getNodeColor(node.color || 'blue');
-        const config = isOrder ? orderConfig : bookingConfig;
+    const config = isOrder ? safeOrderConfig : safeBookingConfig;
         const handleChange = isOrder ? handleOrderStringChange : handleBookingStringChange;
         
         const getNodeShape = () => {
@@ -363,7 +367,7 @@ const OrderFlowManagement: React.FC<OrderFlowManagementProps> = ({ orderConfig, 
                             </div>
                             <label className="flex items-center cursor-pointer ml-4" onClick={e => e.stopPropagation()}>
                                 <div className="relative">
-                                    <input type="checkbox" className="sr-only peer" checked={orderConfig.enabled} onChange={e => handleOrderToggle(e.target.checked)} />
+                                    <input type="checkbox" className="sr-only peer" checked={safeOrderConfig.enabled} onChange={e => handleOrderToggle(e.target.checked)} />
                                     <div className="block bg-gray-600 w-11 h-6 rounded-full peer-checked:bg-blue-600"></div>
                                     <div className="dot absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-transform peer-checked:translate-x-full"></div>
                                 </div>
@@ -385,7 +389,7 @@ const OrderFlowManagement: React.FC<OrderFlowManagementProps> = ({ orderConfig, 
                             </div>
                             <label className="flex items-center cursor-pointer ml-4" onClick={e => e.stopPropagation()}>
                                 <div className="relative">
-                                    <input type="checkbox" className="sr-only peer" checked={bookingConfig.enabled} onChange={e => handleBookingToggle(e.target.checked)} />
+                                    <input type="checkbox" className="sr-only peer" checked={safeBookingConfig.enabled} onChange={e => handleBookingToggle(e.target.checked)} />
                                     <div className="block bg-gray-600 w-11 h-6 rounded-full peer-checked:bg-blue-600"></div>
                                     <div className="dot absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-transform peer-checked:translate-x-full"></div>
                                 </div>
@@ -396,7 +400,7 @@ const OrderFlowManagement: React.FC<OrderFlowManagementProps> = ({ orderConfig, 
                     {/* Flow Diagram */}
                     <div className={`bg-gray-900/50 rounded-lg border-2 p-8 min-h-[600px] ${
                         activeFlow === 'order' ? 'border-blue-600/50' : 'border-purple-600/50'
-                    } ${!((activeFlow === 'order' && orderConfig.enabled) || (activeFlow === 'booking' && bookingConfig.enabled)) ? 'opacity-50' : ''}`}>
+                    } ${!((activeFlow === 'order' && safeOrderConfig.enabled) || (activeFlow === 'booking' && safeBookingConfig.enabled)) ? 'opacity-50' : ''}`}>
                         <div className="flex flex-wrap gap-8 justify-center items-start">
                             {(activeFlow === 'order' ? orderFlowNodes : bookingFlowNodes).map(node => (
                                 <FlowNodeComponent
@@ -453,7 +457,7 @@ const OrderFlowManagement: React.FC<OrderFlowManagementProps> = ({ orderConfig, 
                             <span className="text-xs text-gray-300">Enabled</span>
                             <label className="flex items-center cursor-pointer">
                                 <div className="relative">
-                                    <input type="checkbox" className="sr-only peer" checked={orderConfig.enabled} onChange={e => handleOrderToggle(e.target.checked)} />
+                                    <input type="checkbox" className="sr-only peer" checked={safeOrderConfig.enabled} onChange={e => handleOrderToggle(e.target.checked)} />
                                     <div className="block bg-gray-600 w-11 h-6 rounded-full peer-checked:bg-blue-600"></div>
                                     <div className="dot absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-transform peer-checked:translate-x-full"></div>
                                 </div>
@@ -463,7 +467,7 @@ const OrderFlowManagement: React.FC<OrderFlowManagementProps> = ({ orderConfig, 
 
                     <div className={`grid transition-all duration-300 ease-in-out ${isOrderFlowOpen ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'}`}>
                         <div className="overflow-hidden">
-                            <div className={`p-4 pt-0 ${orderConfig.enabled ? '' : 'opacity-50 pointer-events-none'}`}>
+                            <div className={`p-4 pt-0 ${safeOrderConfig.enabled ? '' : 'opacity-50 pointer-events-none'}`}>
                                 <div className="border-t border-gray-600 pt-4 space-y-3">
                                      <div className="bg-gray-900/50 p-3 rounded-lg border border-gray-700">
                                         <label className="block text-sm font-medium text-gray-300 mb-1">Main 'Manage Order' Button Text</label>
@@ -520,7 +524,7 @@ const OrderFlowManagement: React.FC<OrderFlowManagementProps> = ({ orderConfig, 
                             <span className="text-xs text-gray-300">{t('enableServiceFlow')}</span>
                              <label className="flex items-center cursor-pointer">
                                 <div className="relative">
-                                    <input type="checkbox" className="sr-only peer" checked={bookingConfig.enabled} onChange={e => handleBookingToggle(e.target.checked)} />
+                                    <input type="checkbox" className="sr-only peer" checked={safeBookingConfig.enabled} onChange={e => handleBookingToggle(e.target.checked)} />
                                     <div className="block bg-gray-600 w-11 h-6 rounded-full peer-checked:bg-blue-600"></div>
                                     <div className="dot absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-transform peer-checked:translate-x-full"></div>
                                 </div>
@@ -529,7 +533,7 @@ const OrderFlowManagement: React.FC<OrderFlowManagementProps> = ({ orderConfig, 
                     </div>
                     <div className={`grid transition-all duration-300 ease-in-out ${isBookingFlowOpen ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'}`}>
                         <div className="overflow-hidden">
-                            <div className={`p-4 pt-0 ${bookingConfig.enabled ? '' : 'opacity-50 pointer-events-none'}`}>
+                            <div className={`p-4 pt-0 ${safeBookingConfig.enabled ? '' : 'opacity-50 pointer-events-none'}`}>
                                 <div className="border-t border-gray-600 pt-4 space-y-3">
                                      <CollapsibleSubSection title={t('triage')} icon={<TriageIcon />} defaultOpen>
                                         {bookingFieldKeys.filter(k => k.endsWith('TriagePrompt') || k.endsWith('ButtonText')).map(key => <FlowField key={key} fieldKey={key} label={t(key + '_label')} value={bookingConfig.strings[key as keyof typeof bookingConfig.strings]} onChange={handleBookingStringChange} />)}
