@@ -207,12 +207,16 @@ router.post('/', authenticateToken, async (req: Request, res: Response, next: Ne
       .select()
       .single();
 
-    if (error) throw error;
+    if (error) {
+      console.error('Shop insert error:', error);
+      throw error;
+    }
     
     // Enrich shop with related data
     const enrichedShop = await enrichShop(data);
     res.status(201).json({ success: true, data: enrichedShop });
   } catch (error) {
+    console.error('POST /shops error:', error);
     next(error);
   }
 });
