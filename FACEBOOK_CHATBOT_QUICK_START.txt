@@ -1,0 +1,174 @@
+═══════════════════════════════════════════════════════════════════════════════
+  FACEBOOK AI CHATBOT - QUICK START GUIDE
+═══════════════════════════════════════════════════════════════════════════════
+
+✅ STATUS: FULLY IMPLEMENTED - READY TO TEST
+
+───────────────────────────────────────────────────────────────────────────────
+1. SETUP ENVIRONMENT VARIABLES
+───────────────────────────────────────────────────────────────────────────────
+
+Add to backend/.env:
+
+  FACEBOOK_APP_ID=your_app_id
+  FACEBOOK_APP_SECRET=your_app_secret
+  FACEBOOK_PAGE_ACCESS_TOKEN=your_page_access_token
+  FACEBOOK_WEBHOOK_VERIFY_TOKEN=cliick_webhook_verify_token
+  BACKEND_URL=https://your-backend-url.com
+
+───────────────────────────────────────────────────────────────────────────────
+2. CONFIGURE FACEBOOK APP
+───────────────────────────────────────────────────────────────────────────────
+
+1. Go to: https://developers.facebook.com
+2. Select Your App
+3. Go to: Messenger → Settings
+4. Under Webhooks section:
+   - Callback URL: https://your-backend.com/webhook/facebook
+   - Verify Token: cliick_webhook_verify_token
+5. Select "messages" in subscription fields
+6. Click "Verify and Save"
+7. Subscribe your Facebook page
+
+───────────────────────────────────────────────────────────────────────────────
+3. GET YOUR TOKENS
+───────────────────────────────────────────────────────────────────────────────
+
+Page Access Token:
+  1. Messenger → Settings
+  2. Under "Access Tokens"
+  3. Click "Generate Token" for your page
+  4. Copy and paste into FACEBOOK_PAGE_ACCESS_TOKEN
+
+App Secret:
+  1. Settings → Basic
+  2. Copy "App Secret"
+  3. Paste into FACEBOOK_APP_SECRET
+
+───────────────────────────────────────────────────────────────────────────────
+4. TEST YOUR SETUP
+───────────────────────────────────────────────────────────────────────────────
+
+Step 1: Verify webhook is working
+  curl -X GET "http://localhost:8080/webhook/facebook?hub.mode=subscribe&hub.verify_token=cliick_webhook_verify_token&hub.challenge=test"
+  
+  Expected: Returns "test"
+
+Step 2: Send message from Facebook
+  - Go to your Facebook Page
+  - Open Messenger
+  - Send a message to your page
+  - AI should respond automatically!
+
+Step 3: Check database
+  SELECT * FROM live_conversations WHERE channel = 'facebook';
+  SELECT * FROM live_messages WHERE channel = 'facebook';
+
+───────────────────────────────────────────────────────────────────────────────
+5. WHAT'S IMPLEMENTED
+───────────────────────────────────────────────────────────────────────────────
+
+✅ Facebook Webhook Handler
+   - Receives messages from Facebook Messenger
+   - Validates webhook signatures for security
+   - Verifies webhook tokens
+
+✅ AI Integration
+   - Processes messages with Gemini API
+   - Generates intelligent responses
+   - Maintains conversation context
+
+✅ Message Flow
+   - Receives Facebook message
+   - Routes to AI engine
+   - Sends response back to Messenger
+   - Logs conversation in database
+
+✅ Database Integration
+   - Creates conversations for each customer
+   - Stores all messages
+   - Tracks interaction history
+
+───────────────────────────────────────────────────────────────────────────────
+6. TROUBLESHOOTING
+───────────────────────────────────────────────────────────────────────────────
+
+Problem: Bot not responding
+  ✓ Check FACEBOOK_PAGE_ACCESS_TOKEN is set
+  ✓ Check FACEBOOK_APP_SECRET is correct
+  ✓ Check backend is running
+  ✓ Look for errors in backend logs
+
+Problem: "Invalid webhook signature"
+  ✓ Verify FACEBOOK_APP_SECRET matches your app
+  ✓ Don't modify webhook body before processing
+
+Problem: Messages not in database
+  ✓ Check live_conversations table exists
+  ✓ Check live_messages table exists
+  ✓ Verify facebook_page_id is stored in shop
+
+───────────────────────────────────────────────────────────────────────────────
+7. KEY ENDPOINTS
+───────────────────────────────────────────────────────────────────────────────
+
+GET  /webhook/facebook
+   - Facebook verification request
+   - Returns challenge token
+
+POST /webhook/facebook
+   - Receives messages from Facebook
+   - Processes with AI
+   - Sends responses back
+
+───────────────────────────────────────────────────────────────────────────────
+8. MONITORING
+───────────────────────────────────────────────────────────────────────────────
+
+Check logs for:
+  [INFO] Facebook webhook verified
+  [INFO] Received Facebook message from ...
+  [INFO] Facebook message sent to ...
+
+Database queries:
+  - Count messages: SELECT COUNT(*) FROM live_messages WHERE channel='facebook'
+  - List conversations: SELECT * FROM live_conversations WHERE channel='facebook'
+  - Response times: Check created_at timestamps
+
+───────────────────────────────────────────────────────────────────────────────
+9. FILES INVOLVED
+───────────────────────────────────────────────────────────────────────────────
+
+Implementation:
+  ✅ backend/routes/webhooks.ts (TypeScript)
+  ✅ backend/routes/webhooks.js (JavaScript compiled)
+
+AI Engine:
+  ✅ services/geminiService.ts (Gemini API)
+  ✅ hooks/useChatLogic.ts (Chat logic)
+
+Documentation:
+  - FACEBOOK_CHATBOT_SETUP.md (Complete guide)
+  - FACEBOOK_CHATBOT_VERIFICATION.md (Architecture)
+  - FACEBOOK_AI_CHATBOT_STATUS.md (Status & features)
+
+───────────────────────────────────────────────────────────────────────────────
+10. NEXT STEPS
+───────────────────────────────────────────────────────────────────────────────
+
+Immediate:
+  [ ] Set environment variables
+  [ ] Configure Facebook webhook
+  [ ] Send test message
+  [ ] Verify response works
+
+Optional Enhancements:
+  [ ] Add quick reply buttons
+  [ ] Handle image messages
+  [ ] Add typing indicators
+  [ ] Multi-language support
+  [ ] Analytics dashboard
+
+═══════════════════════════════════════════════════════════════════════════════
+Ready to go! Send your first message and watch your AI chatbot respond! 🚀
+═══════════════════════════════════════════════════════════════════════════════
