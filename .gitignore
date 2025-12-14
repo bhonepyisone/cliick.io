@@ -12,10 +12,30 @@ dist
 dist-ssr
 *.local
 
-# Environment variables
+# Environment variables - NEVER commit actual values
 .env
 .env.local
 .env.*.local
+.env.production
+.env.staging
+backend/.env
+backend/.env.local
+backend/.env.*.local
+backend/.env.production
+backend/.env.staging
+
+# Secrets and credentials
+*.pem
+*.key
+*.jks
+*.p12
+*.pfx
+*.key.json
+secrets/
+.secrets/
+credentials.json
+*.credentials
+private_keys/
 
 # Editor directories and files
 .vscode/*
