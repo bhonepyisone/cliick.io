@@ -1,13 +1,8 @@
 import express, { Request, Response } from 'express';
-import { createClient } from '@supabase/supabase-js';
+import { supabase } from '../config/supabase';
 import { authenticateToken } from '../middleware/auth';
 
 const router = express.Router();
-
-const supabase = createClient(
-    process.env.SUPABASE_URL || '',
-    process.env.SUPABASE_SERVICE_ROLE_KEY || ''
-);
 
 /**
  * Grant super admin access to a user
