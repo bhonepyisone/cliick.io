@@ -25,8 +25,9 @@ const ShopSettingsPanel: React.FC<ShopSettingsPanelProps> = ({ shop, onUpdateSho
     const [deleteConfirmationInput, setDeleteConfirmationInput] = useState('');
 
     const currencies = useMemo(() => {
-        const platformSettings = getPlatformSettings();
-        const enabledCodes = new Set(platformSettings.localization.enabledCurrencies);
+        // Default enabled currencies if platform settings are not available
+        const defaultEnabledCurrencies = ['MMK', 'USD', 'EUR', 'GBP', 'JPY', 'THB', 'SGD'];
+        const enabledCodes = new Set(defaultEnabledCurrencies);
         return allCurrencies.filter(currency => enabledCodes.has(currency.code));
     }, []);
 
