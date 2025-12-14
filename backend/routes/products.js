@@ -6,6 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const supabase_1 = require("../config/supabase");
 const auth_1 = require("../middleware/auth");
+const authorizationRole_1 = require("../middleware/authorizationRole");
 const router = express_1.default.Router({ mergeParams: true });
 router.get('/', async (req, res, next) => {
     try {
@@ -19,7 +20,7 @@ router.get('/', async (req, res, next) => {
         next(error);
     }
 });
-router.post('/', auth_1.authenticateToken, async (req, res, next) => {
+router.post('/', auth_1.authenticateToken, (0, authorizationRole_1.requireRole)('manage_products'), async (req, res, next) => {
     try {
         const { shopId } = req.params;
         const { name, description, retail_price, stock, category } = req.body;
@@ -52,7 +53,7 @@ router.get('/:productId', async (req, res, next) => {
         next(error);
     }
 });
-router.put('/:productId', auth_1.authenticateToken, async (req, res, next) => {
+router.put('/:productId', auth_1.authenticateToken, (0, authorizationRole_1.requireRole)('manage_products'), async (req, res, next) => {
     try {
         const { shopId, productId } = req.params;
         const { name, description, retail_price, stock, category } = req.body;
@@ -105,7 +106,7 @@ router.put('/:productId', auth_1.authenticateToken, async (req, res, next) => {
     }
 });
 // PUT /shops/:shopId/products/:productId/stock - Update stock with reason
-router.put('/:productId/stock', auth_1.authenticateToken, async (req, res, next) => {
+router.put('/:productId/stock', auth_1.authenticateToken, (0, authorizationRole_1.requireRole)('manage_products'), async (req, res, next) => {
     try {
         const { shopId, productId } = req.params;
         const { adjustment, reason } = req.body;
@@ -160,7 +161,7 @@ router.put('/:productId/stock', auth_1.authenticateToken, async (req, res, next)
         next(error);
     }
 });
-router.delete('/:productId', auth_1.authenticateToken, async (req, res, next) => {
+router.delete('/:productId', auth_1.authenticateToken, (0, authorizationRole_1.requireRole)('manage_products'), async (req, res, next) => {
     try {
         const { shopId, productId } = req.params;
         const { error } = await supabase_1.supabase.from('items').delete().eq('id', productId).eq('shop_id', shopId);

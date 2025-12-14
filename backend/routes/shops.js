@@ -183,24 +183,31 @@ router.post('/', auth_1.authenticateToken, async (req, res, next) => {
         }
         const trialEndDate = new Date();
         trialEndDate.setDate(trialEndDate.getDate() + 14); // 14-day trial
-        const subscriptionData = {
-            plan: 'Trial',
-            status: 'trialing',
-            trialEndsAt: trialEndDate.toISOString(),
-            periodEndsAt: null
-        };
         const { data, error } = await supabase_1.supabase
             .from('shops')
-            .insert([{ name, description, currency, assistant_model, owner_id: userId, subscription_data: JSON.stringify(subscriptionData) }])
+            .insert([{
+                name,
+                description,
+                currency,
+                assistant_model,
+                owner_id: userId,
+                subscription_plan: 'Trial',
+                subscription_status: 'trialing',
+                trial_ends_at: trialEndDate.toISOString(),
+                period_ends_at: null
+            }])
             .select()
             .single();
-        if (error)
+        if (error) {
+            console.error('Shop insert error:', error);
             throw error;
+        }
         // Enrich shop with related data
         const enrichedShop = await enrichShop(data);
         res.status(201).json({ success: true, data: enrichedShop });
     }
     catch (error) {
+        console.error('POST /shops error:', error);
         next(error);
     }
 });

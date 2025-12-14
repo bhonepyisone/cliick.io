@@ -6,6 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const supabase_1 = require("../config/supabase");
 const auth_1 = require("../middleware/auth");
+const authorizationRole_1 = require("../middleware/authorizationRole");
 const router = express_1.default.Router({ mergeParams: true });
 router.get('/', async (req, res, next) => {
     try {
@@ -19,7 +20,7 @@ router.get('/', async (req, res, next) => {
         next(error);
     }
 });
-router.post('/', auth_1.authenticateToken, async (req, res, next) => {
+router.post('/', auth_1.authenticateToken, (0, authorizationRole_1.requireRole)('manage_orders'), async (req, res, next) => {
     try {
         const { shopId } = req.params;
         const { form_submission_id, items, status } = req.body;
@@ -89,7 +90,7 @@ router.get('/:orderId', async (req, res, next) => {
         next(error);
     }
 });
-router.put('/:orderId/status', auth_1.authenticateToken, async (req, res, next) => {
+router.put('/:orderId/status', auth_1.authenticateToken, (0, authorizationRole_1.requireRole)('manage_orders'), async (req, res, next) => {
     try {
         const { shopId, orderId } = req.params;
         const { status } = req.body;
@@ -111,7 +112,7 @@ router.put('/:orderId/status', auth_1.authenticateToken, async (req, res, next) 
         next(error);
     }
 });
-router.put('/:orderId', auth_1.authenticateToken, async (req, res, next) => {
+router.put('/:orderId', auth_1.authenticateToken, (0, authorizationRole_1.requireRole)('manage_orders'), async (req, res, next) => {
     try {
         const { shopId, orderId } = req.params;
         const { status } = req.body;
@@ -133,7 +134,7 @@ router.put('/:orderId', auth_1.authenticateToken, async (req, res, next) => {
         next(error);
     }
 });
-router.delete('/:orderId', auth_1.authenticateToken, async (req, res, next) => {
+router.delete('/:orderId', auth_1.authenticateToken, (0, authorizationRole_1.requireRole)('manage_orders'), async (req, res, next) => {
     try {
         const { shopId, orderId } = req.params;
         const { error } = await supabase_1.supabase
