@@ -5,8 +5,22 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const supabase_1 = require("../config/supabase");
-const geminiService = require("../services/geminiService");
-const platformSettingsService = require("../services/platformSettingsService");
+let geminiService = null;
+let platformSettingsService = null;
+
+// Try to load optional services - continue if they fail
+try {
+    geminiService = require("../services/geminiService");
+} catch (e) {
+    console.warn('⚠️  Warning: Could not load geminiService - AI webhooks will not work');
+}
+
+try {
+    platformSettingsService = require("../services/platformSettingsService");
+} catch (e) {
+    console.warn('⚠️  Warning: Could not load platformSettingsService');
+}
+
 const crypto_1 = __importDefault(require("crypto"));
 
 const router = express_1.default.Router();
@@ -256,6 +270,12 @@ async function getOrCreateFacebookConversation(shopId, facebookSenderId) {
 
 async function generateAIResponse(shop, message, senderId) {
     try {
+        // Check if services are available
+        if (!platformSettingsService || !geminiService) {
+            logger.warn('AI services not available - returning placeholder response');
+            return 'Thank you for your message. Our AI assistant is temporarily unavailable. Please try again later.';
+        }
+        
         const settings = await platformSettingsService.getPlatformSettings();
         const { globalModelConfig, modelAssignments } = settings.aiConfig;
         const modelConfig = modelAssignments.generalChatStandard;
