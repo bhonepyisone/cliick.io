@@ -1,7 +1,7 @@
 import express, { Router, Request, Response } from 'express';
 import { supabase } from '../config/supabase';
-import * as geminiService from '../../services/geminiService';
-import { getPlatformSettings } from '../../services/platformSettingsService';
+import * as geminiService from '../services/geminiService';
+import { getPlatformSettings } from '../services/platformSettingsService';
 import crypto from 'crypto';
 
 // Simple logger

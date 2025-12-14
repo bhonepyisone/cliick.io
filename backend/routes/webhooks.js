@@ -5,8 +5,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const supabase_1 = require("../config/supabase");
-const geminiService = require("../../services/geminiService");
-const platformSettingsService = require("../../services/platformSettingsService");
+const geminiService = require("../services/geminiService");
+const platformSettingsService = require("../services/platformSettingsService");
 const crypto_1 = __importDefault(require("crypto"));
 
 const router = express_1.default.Router();
