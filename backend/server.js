@@ -13,6 +13,59 @@ const rateLimit = require('express-rate-limit');
 const app = express();
 const server = http.createServer(app);
 
+// ============================================
+// MIDDLEWARE - MUST be before routes
+// ============================================
+
+// Security headers
+app.use(helmet());
+
+// CORS configuration - allow both local and production URLs
+app.use(cors({
+    origin: function(origin, callback) {
+        // Allow localhost development
+        if (!origin || 
+            origin.startsWith('http://localhost') || 
+            origin.startsWith('http://127.0.0.1') ||
+            origin === (process.env.FRONTEND_URL || 'https://cliickio.vercel.app') ||
+            origin.endsWith('.vercel.app')) {
+            callback(null, true);
+        } else {
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+}));
+
+// Compression
+app.use(compression());
+
+// Body parsing
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+
+// Cookie parsing
+app.use(cookieParser());
+
+// Logging
+if (process.env.NODE_ENV === 'development') {
+    app.use(morgan('dev'));
+} else {
+    app.use(morgan('combined'));
+}
+
+// Rate limiting
+const limiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 100, // Limit each IP to 100 requests per windowMs
+    message: 'Too many requests from this IP, please try again later.',
+});
+app.use('/api/', limiter);
+
+console.log('✅ Middleware configured');
+
 // Simple health check endpoint - MUST work immediately
 app.get('/health', (req, res) => {
     res.status(200).json({
@@ -78,57 +131,6 @@ try {
     console.log('✅ Socket.io initialized');
 
     // ============================================
-    // MIDDLEWARE
-    // ============================================
-
-    // Security headers
-    app.use(helmet());
-
-    // CORS configuration - allow both local and production URLs
-    app.use(cors({
-        origin: function(origin, callback) {
-            // Allow localhost development
-            if (!origin || 
-                origin.startsWith('http://localhost') || 
-                origin.startsWith('http://127.0.0.1') ||
-                origin === (process.env.FRONTEND_URL || 'https://cliickio.vercel.app') ||
-                origin.endsWith('.vercel.app')) {
-                callback(null, true);
-            } else {
-                callback(new Error('Not allowed by CORS'));
-            }
-        },
-        credentials: true,
-    }));
-
-    // Compression
-    app.use(compression());
-
-    // Body parsing
-    app.use(express.json({ limit: '10mb' }));
-    app.use(express.urlencoded({ extended: true, limit: '10mb' }));
-
-    // Cookie parsing
-    app.use(cookieParser());
-
-    // Logging
-    if (process.env.NODE_ENV === 'development') {
-        app.use(morgan('dev'));
-    } else {
-        app.use(morgan('combined'));
-    }
-
-    // Rate limiting
-    const limiter = rateLimit({
-        windowMs: 15 * 60 * 1000, // 15 minutes
-        max: 100, // Limit each IP to 100 requests per windowMs
-        message: 'Too many requests from this IP, please try again later.',
-    });
-    app.use('/api/', limiter);
-    
-    console.log('✅ Middleware configured');
-
-    // ============================================
     // ROUTES
     // ============================================
 
@@ -175,14 +177,19 @@ try {
     // WEBSOCKET SETUP
     // ============================================
 
-    setupWebSocket(io);
-    initializeWebSocketEmitter(io);
+    try {
+        setupWebSocket(io);
+        initializeWebSocketEmitter(io);
+    } catch (wsError) {
+        console.warn('⚠️  WebSocket setup warning:', wsError.message);
+    }
     
     console.log('✅ WebSocket setup complete');
 
 } catch (importError) {
     console.error('❌ Error during initialization:', importError.message);
     console.error(importError.stack);
+    // Continue anyway - routes might not be available but health check should work
 }
 
 // ============================================
